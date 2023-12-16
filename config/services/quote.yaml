@@ -1,6 +1,6 @@
 services:
     ControleOnline\:
-        resource: "../../quote/src/*"
+        resource: "../../src/*"
         exclude: "../src/{DependencyInjection,Entity,Resource,Migrations,Library,Tests,Kernel.php}"
     ControleOnline\Repository\:
         resource: "../../src/Repository"
