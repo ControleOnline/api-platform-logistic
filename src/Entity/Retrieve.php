@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="retrieve", indexes={@ORM\Index (name="IDX_order_id", columns={"order_id"})})
- * @ORM\Entity (repositoryClass="App\Repository\RetrieveRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\RetrieveRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['retrieve_read', 'order_read']], denormalizationContext: ['groups' => ['retrieve_write', 'order_write']])]
 class Retrieve

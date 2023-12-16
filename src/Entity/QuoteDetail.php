@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="quote_detail", indexes={@ORM\Index (name="IDX_region_destination_id", columns={"region_destination_id"}),@ORM\Index(name="IDX_region_origin_id", columns={"region_origin_id"}),@ORM\Index(name="IDX_delivery_tax_id", columns={"delivery_tax_id"}),@ORM\Index(name="IDX_quote", columns={"quote_id"})})
- * @ORM\Entity (repositoryClass="App\Repository\QuoteDetailRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\QuoteDetailRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['quotedetail_read']], denormalizationContext: ['groups' => ['quotedetail_write']])]
 class QuoteDetail

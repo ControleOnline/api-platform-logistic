@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
   * @ORM\EntityListeners({App\Listener\LogListener::class})
  * @ORM\Table(name="carrier_integration")
- * @ORM\Entity(repositoryClass="App\Repository\CarrierIntegrationRepository")
+ * @ORM\Entity(repositoryClass="ControleOnline\Repository\CarrierIntegrationRepository")
  */
 class CarrierIntegration
 {

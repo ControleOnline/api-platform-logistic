@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="delivery_tax", indexes={@ORM\Index (name="IDX_region_destination_id", columns={"region_destination_id"}),@ORM\Index(name="IDX_region_origin_id", columns={"region_origin_id"})})
- * @ORM\Entity (repositoryClass="App\Repository\DeliveryTaxRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\DeliveryTaxRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'read\', object)'), new Put(security: 'is_granted(\'edit\', object)', denormalizationContext: ['groups' => ['delivery_tax_edit']]), new Delete(security: 'is_granted(\'delete\', object)'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'), new Post(securityPostDenormalize: 'is_granted(\'create\', object)')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['delivery_tax_read']], denormalizationContext: ['groups' => ['delivery_tax_write']])]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['taxType' => 'exact', 'taxSubtype' => 'exact', 'regionOrigin' => 'exact', 'regionDestination' => 'exact'])]

@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="order_tracking")
- * @ORM\Entity (repositoryClass="App\Repository\OrderTrackingRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\OrderTrackingRepository")
  */
 #[ApiResource(operations: [new GetCollection(uriTemplate: 'track/back/{orderId}/{document}', controller: \App\Controller\GetTrackBackAction::class, openapiContext: [])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')')]
 class TrackBack extends OrderTracking

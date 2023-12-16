@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="package_modules", uniqueConstraints={@ORM\UniqueConstraint (name="package_id", columns={"package_id", "module_id"})}, indexes={@ORM\Index (name="module_id", columns={"module_id"}), @ORM\Index(name="IDX_A1EC265BF44CABFF", columns={"package_id"})})
- * @ORM\Entity (repositoryClass="App\Repository\PackageModulesRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\PackageModulesRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['package_modules_read']], denormalizationContext: ['groups' => ['package_modules_write']])]
 class PackageModules

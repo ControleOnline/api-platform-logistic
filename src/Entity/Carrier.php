@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * Carrier
  *
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
- * @ORM\Entity (repositoryClass="App\Repository\CarrierRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\CarrierRepository")
  * @ORM\Table (name="people")
  */
 #[ApiResource(

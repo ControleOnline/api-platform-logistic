@@ -23,7 +23,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *  @ORM\Index(name="IDX_client_id", columns={"client_id"}),
  *  @ORM\Index(name="IDX_order_id", columns={"order_id"})}
  * )
- * @ORM\Entity (repositoryClass="App\Repository\QuotationRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\QuotationRepository")
  */
 #[ApiResource(
     operations: [
