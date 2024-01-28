@@ -4,6 +4,6 @@ doctrine:
             ControleOnline:
                 is_bundle: false
                 type: annotation
-                dir: "%kernel.project_dir%/vendor/controleonline/quote/src/Entity"
+                dir: "%kernel.project_dir%/vendor/controleonline/logistic/src/Entity"
                 prefix: 'ControleOnline\Entity'
                 alias: ControleOnline
