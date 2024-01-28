@@ -1,6 +1,6 @@
 {
   "type": "symfony-bundle",
-  "name": "controleonline/quote",
+  "name": "controleonline/logistic",
   "license": "MIT",
   "autoload": {
     "psr-4": {
