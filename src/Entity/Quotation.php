@@ -141,9 +141,9 @@ class Quotation
      */
     private $cityDestination;
     /**
-     * @var \ControleOnline\Entity\Order
+     * @var \ControleOnline\Entity\SalesOrder
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Order", inversedBy="quotes")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\SalesOrder", inversedBy="quotes")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="order_id", referencedColumnName="id", nullable=false)
      * })
@@ -355,10 +355,10 @@ class Quotation
     /**
      * Set order
      *
-     * @param \ControleOnline\Entity\Order $order
+     * @param \ControleOnline\Entity\SalesOrder $order
      * @return Quotation
      */
-    public function setOrder(\ControleOnline\Entity\Order $order = null)
+    public function setOrder(\ControleOnline\Entity\SalesOrder $order = null)
     {
         $this->order = $order;
         return $this;
@@ -366,7 +366,7 @@ class Quotation
     /**
      * Get order
      *
-     * @return \ControleOnline\Entity\Order
+     * @return \ControleOnline\Entity\SalesOrder
      */
     public function getOrder()
     {

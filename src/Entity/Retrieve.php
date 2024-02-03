@@ -27,9 +27,9 @@ class Retrieve
      */
     private $id;
     /**
-     * @var \ControleOnline\Entity\Order
+     * @var \ControleOnline\Entity\SalesOrder
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Order", inversedBy="retrieves")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\SalesOrder", inversedBy="retrieves")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="order_id", referencedColumnName="id", nullable=false)
      * })
@@ -63,10 +63,10 @@ class Retrieve
     /**
      * Set order
      *
-     * @param \ControleOnline\Entity\Order $order
+     * @param \ControleOnline\Entity\SalesOrder $order
      * @return Order
      */
-    public function setOrder(\ControleOnline\Entity\Order $order = null)
+    public function setOrder(\ControleOnline\Entity\SalesOrder $order = null)
     {
         $this->order = $order;
         return $this;
