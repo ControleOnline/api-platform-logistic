@@ -1,4 +1,4 @@
-# quote
+# logistic
 
 
 `composer require controleonline/logistic:dev-master`
