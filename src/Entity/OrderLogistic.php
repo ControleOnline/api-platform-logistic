@@ -35,16 +35,14 @@ use DateTime;
     security: 'is_granted(\'ROLE_CLIENT\')',
     normalizationContext: ['groups' => ['logistic_read']],
     denormalizationContext: ['groups' => ['logistic_write']],
-    filters: [
-        'date_filter' => [
-            'class' => DateFilter::class,
-            'properties' => [
-                'estimatedShippingDate',
-                'shippingDate',
-                'estimatedArrivalDate',
-                'arrivalDate',
-            ],
-        ],
+)]
+#[ApiFilter(
+    filterClass: DateFilter::class,
+    properties: [
+        'estimatedShippingDate',
+        'shippingDate',
+        'estimatedArrivalDate',
+        'arrivalDate',
     ],
 )]
 #[ApiFilter(
