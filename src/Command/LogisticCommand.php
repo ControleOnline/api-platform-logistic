@@ -7,7 +7,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Doctrine\ORM\EntityManagerInterface;
-use ControleOnline\Entity\ReceiveInvoice;
+use ControleOnline\Entity\Invoice;
 use ControleOnline\Entity\SalesOrderInvoice;
 use ControleOnline\Entity\Status;
 use ControleOnline\Entity\Category;
@@ -187,7 +187,7 @@ class LogisticCommand extends Command
 
 
 
-                $invoice = new ReceiveInvoice();
+                $invoice = new Invoice();
                 $invoice->setPrice($order->getPrice());
                 $invoice->setDueDate($this->getDueDate($order->getClient()));
                 $invoice->setStatus($this->em->getRepository(Status::class)->findOneBy(['status' => ['waiting payment'], 'context' => 'invoice']));
