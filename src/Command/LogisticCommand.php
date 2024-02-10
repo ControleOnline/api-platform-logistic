@@ -7,41 +7,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Doctrine\ORM\EntityManagerInterface;
-use Twig\Environment;
-use App\Library\Utils\Formatter;
-use Doctrine\ORM\Query\ResultSetMapping;
-use App\Service\SignatureService;
-use App\Service\MauticService;
-use App\Service\EmailService;
-use ControleOnline\Entity\People;
-use ControleOnline\Entity\Order;
 use ControleOnline\Entity\ReceiveInvoice;
-use ControleOnline\Entity\PayInvoice;
-use ControleOnline\Entity\SalesOrder;
-use ControleOnline\Entity\PurchasingOrder;
 use ControleOnline\Entity\SalesOrderInvoice;
-use ControleOnline\Entity\PurchasingInvoiceTax;
-use ControleOnline\Entity\SalesInvoiceTax;
 use ControleOnline\Entity\Status;
-use ControleOnline\Entity\PurchasingOrderInvoiceTax;
-use ControleOnline\Entity\SalesOrderInvoiceTax;
-use ControleOnline\Entity\Document;
-use ControleOnline\Entity\PeopleSalesman;
-use ControleOnline\Entity\PeopleClient;
-use ControleOnline\Repository\ConfigRepository;
-use App\Library\Itau\ItauClient;
-use ControleOnline\Entity\Config;
-use ControleOnline\Entity\Contract;
-use ControleOnline\Entity\File;
-use ControleOnline\Entity\Import;
-use ControleOnline\Entity\Quotation;
-use ControleOnline\Entity\Task;
 use ControleOnline\Entity\Category;
 use ControleOnline\Entity\OrderLogistic;
-use ControleOnline\Entity\TaskInteration;
 use ControleOnline\Service\DatabaseSwitchService;
-
-use DateTime;
 
 class OrderNotifierCommand extends Command
 {
@@ -52,24 +23,6 @@ class OrderNotifierCommand extends Command
   protected $ma;
 
   protected $errors = [];
-
-  private $payment = [];
-
-  private $itau_configs = [];
-
-  /**
-   * Twig render
-   *
-   * @var \Twig\Environment
-   */
-  private $twig;
-
-  /**
-   * Config repository
-   *
-   * @var \ControleOnline\Repository\ConfigRepository
-   */
-  private $config;
 
   /**
    * Entity manager
@@ -85,12 +38,11 @@ class OrderNotifierCommand extends Command
    */
   private $output;
 
-  public function __construct(EntityManagerInterface $entityManager, MauticService $mauticService, ConfigRepository $config, Environment $twig, DatabaseSwitchService $databaseSwitchService)
+  public function __construct(EntityManagerInterface $entityManager, DatabaseSwitchService $databaseSwitchService)
   {
     $this->em     = $entityManager;
-    $this->ma     = $mauticService;
-    $this->config = $config;
-    $this->twig   = $twig;
+
+
     $this->errors = [];
     $this->databaseSwitchService = $databaseSwitchService;
 
