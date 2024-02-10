@@ -14,7 +14,7 @@ use ControleOnline\Entity\Category;
 use ControleOnline\Entity\OrderLogistic;
 use ControleOnline\Service\DatabaseSwitchService;
 
-class OrderNotifierCommand extends Command
+class LogisticCommand extends Command
 {
   protected static $defaultName = 'app:logistic:run';
 
