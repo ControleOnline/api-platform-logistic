@@ -7,22 +7,15 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ControleOnline\Repository\OrderLogisticRepository;
-use App\Controller\CreateLogisticAction;
-use App\Controller\UpdateLogisticAction;
 use ControleOnline\Entity\Status;
 use ControleOnline\Entity\SalesOrder;
-use ControleOnline\Entity\PurchasingOrder;
 use ControleOnline\Entity\People;
 use DateTime;
-use Symfony\Component\Validator\Constraints as Assert;
-use phpDocumentor\Reflection\Types\This;
 
 /**
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
@@ -45,17 +38,20 @@ use phpDocumentor\Reflection\Types\This;
 #[ApiFilter(
     filterClass: SearchFilter::class,
     properties: [
-        'shippingDate' => 'exact',
-        'arrivalDate' => 'exact',
-        'order.id' =>        'exact',
-        'order.contract.id' => 'exact',
-        'order.client.name' => 'partial',
-        'order.productType' => 'partial',
-        'order.otherInformations' => 'partial',
-        'provider' => 'exact',
-        'destinationProvider' => 'exact',
-        'status' => 'exact',
-        'originAddress' => 'partial'
+        'order.id'                  => 'exact',
+        'order.contract.id'         => 'exact',
+        'order.client.name'         => 'partial',
+        'order.productType'         => 'partial',
+        'order.otherInformations'   => 'partial',
+        'originType'                => 'exact',
+        'originProvider'            => 'exact',
+        'originAddress'             => 'partial',
+        'originCity'                => 'exact',
+        'destinationType'           => 'exact',
+        'destinationProvider'       => 'exact',
+        'destinationAddress'        => 'partial',
+        'destinationCity'           => 'exact',
+        'status'                    => 'exact',
     ]
 )]
 
@@ -108,48 +104,33 @@ class OrderLogistic
      * @Groups({"logistic_read","logistic_write"})
      */
     private $originType;
+
     /**
-     * @var string|null
+     * @var \ControleOnline\Entity\City
      *
-     * @ORM\Column(name="origin_region", type="string", length=50, nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
-     */
-    private $originRegion = NULL;
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="origin_state", type="string", length=50, nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
-     */
-    private $originState = NULL;
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="origin_city", type="string", length=100, nullable=true)
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\City")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="origin_city", referencedColumnName="id")
+     * })
      * @Groups({"logistic_read","logistic_write"})
      */
     private $originCity = NULL;
+
     /**
      * @var string|null
      *
-     * @ORM\Column(name="origin_adress", type="string", length=150, nullable=true)
+     * @ORM\Column(name="origin_address", type="string", length=150, nullable=true)
      * @Groups({"logistic_read","logistic_write"})
      */
     private $originAddress = NULL;
-    /** 
-     * @var string|null
-     *
-     * @ORM\Column(name="origin_locator", type="string", length=150, nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
-     */
-    private $originLocator = NULL;
+
     /**
      * @var float
      *
      * @ORM\Column(name="price", type="float", nullable=false)
      * @Groups({"logistic_read","logistic_write"})
      */
-    private $price;
+    private $price = 0;
     /**
      * @var float
      *
@@ -174,16 +155,7 @@ class OrderLogistic
      * @Groups({"logistic_read","logistic_write"})
      */
     private $order;
-    /**
-     * @var \ControleOnline\Entity\PurchasingOrder
-     *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\PurchasingOrder")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="purchasing_order_id", referencedColumnName="id")
-     * })
-     * @Groups({"logistic_read","logistic_write"})
-     */
-    private $purchasingOrder;
+
     /**
      * @var \People
      *
@@ -214,26 +186,17 @@ class OrderLogistic
      * @Groups({"logistic_read","logistic_write"})
      */
     private $destinationType;
+
     /**
-     * @var string|null
+     * @var \ControleOnline\Entity\City
      *
-     * @ORM\Column(name="destination_region", type="string", length=50, nullable=true)
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\City")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="destination_city", referencedColumnName="id")
+     * })
      * @Groups({"logistic_read","logistic_write"})
      */
-    private $destinationRegion = NULL;
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="destination_state", type="string", length=50, nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
-     */
-    private $destinationState = NULL;
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="destination_city", type="string", length=100, nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
-     */
+
     private $destinationCity = NULL;
     /**
      * @var string|null
@@ -241,14 +204,8 @@ class OrderLogistic
      * @ORM\Column(name="destination_address", type="string", length=150, nullable=true)
      * @Groups({"logistic_read","logistic_write"})
      */
-    private $destinationAdress = NULL;
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="destination_locator", type="string", length=150, nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
-     */
-    private $destinationLocator = NULL;
+    private $destinationAddress = NULL;
+
     /**
      * @var \People
      *
@@ -264,11 +221,11 @@ class OrderLogistic
      *
      * @ORM\ManyToOne(targetEntity="People")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="in_charge", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="created_by", referencedColumnName="id")
      * })
      * @Groups({"logistic_read","logistic_write"})
      */
-    private $inCharge;
+    private $created_by;
     /**
      * @var \DateTimeInterface
      * @ORM\Column(name="last_modified", type="datetime",  nullable=false, columnDefinition="DATETIME")
@@ -388,48 +345,7 @@ class OrderLogistic
         $this->originType = $originType;
         return $this;
     }
-    /**
-     * Get the value of originRegion
-     *
-     * @return  string|null
-     */
-    public function getOriginRegion()
-    {
-        return $this->originRegion;
-    }
-    /**
-     * Set the value of originRegion
-     *
-     * @param  string|null  $originRegion
-     *
-     * @return  self
-     */
-    public function setOriginRegion($originRegion)
-    {
-        $this->originRegion = $originRegion;
-        return $this;
-    }
-    /**
-     * Get the value of originState
-     *
-     * @return  string|null
-     */
-    public function getOriginState()
-    {
-        return $this->originState;
-    }
-    /**
-     * Set the value of originState
-     *
-     * @param  string|null  $originState
-     *
-     * @return  self
-     */
-    public function setOriginState($originState)
-    {
-        $this->originState = $originState;
-        return $this;
-    }
+
     /**
      * Get the value of originCity
      *
@@ -576,48 +492,6 @@ class OrderLogistic
         return $this;
     }
     /**
-     * Get the value of destinationRegion
-     *
-     * @return  string|null
-     */
-    public function getDestinationRegion()
-    {
-        return $this->destinationRegion;
-    }
-    /**
-     * Set the value of destinationRegion
-     *
-     * @param  string|null  $destinationRegion
-     *
-     * @return  self
-     */
-    public function setDestinationRegion($destinationRegion)
-    {
-        $this->destinationRegion = $destinationRegion;
-        return $this;
-    }
-    /**
-     * Get the value of destinationState
-     *
-     * @return  string|null
-     */
-    public function getDestinationState()
-    {
-        return $this->destinationState;
-    }
-    /**
-     * Set the value of destinationState
-     *
-     * @param  string|null  $destinationState
-     *
-     * @return  self
-     */
-    public function setDestinationState($destinationState)
-    {
-        $this->destinationState = $destinationState;
-        return $this;
-    }
-    /**
      * Get the value of destinationCity
      *
      * @return  string|null
@@ -639,45 +513,24 @@ class OrderLogistic
         return $this;
     }
     /**
-     * Get the value of destinationAdress
+     * Get the value of destinationAddress
      *
      * @return  string|null
      */
-    public function getDestinationAdress()
+    public function getDestinationAddress()
     {
-        return $this->destinationAdress;
+        return $this->destinationAddress;
     }
     /**
-     * Set the value of destinationAdress
+     * Set the value of destinationAddress
      *
-     * @param  string|null  $destinationAdress
+     * @param  string|null  $destinationAddress
      *
      * @return  self
      */
-    public function setDestinationAdress($destinationAdress)
+    public function setDestinationAddress($destinationAddress)
     {
-        $this->destinationAdress = $destinationAdress;
-        return $this;
-    }
-    /**
-     * Get the value of inCharge
-     *
-     * @return  \People
-     */
-    public function getInCharge()
-    {
-        return $this->inCharge;
-    }
-    /**
-     * Set the value of inCharge
-     *
-     * @param  ControleOnline\Entity\People\People  $inCharge
-     *
-     * @return  self
-     */
-    public function setInCharge(\ControleOnline\Entity\People $inCharge)
-    {
-        $this->inCharge = $inCharge;
+        $this->destinationAddress = $destinationAddress;
         return $this;
     }
     /**
@@ -760,21 +613,7 @@ class OrderLogistic
 
         return $this;
     }
-    /**
-     * Get the value of purchasingOrder
-     */
-    public function getPurchasingOrder()
-    {
-        return $this->purchasingOrder;
-    }
-    /**
-     * Set the value of purchasingOrder
-     */
-    public function setPurchasingOrder(\ControleOnline\Entity\PurchasingOrder $purchasingOrder)
-    {
-        $this->purchasingOrder = $purchasingOrder;
-        return $this;
-    }
+
 
     /**
      * Get the value of orderLogisticSurvey
@@ -794,38 +633,21 @@ class OrderLogistic
         return $this;
     }
 
+
     /**
-     * Get the value of originLocator
+     * Get the value of created_by
      */
-    public function getOriginLocator(): ?string
+    public function getCreatedBy()
     {
-        return $this->originLocator;
+        return $this->created_by;
     }
 
     /**
-     * Set the value of originLocator
+     * Set the value of created_by
      */
-    public function setOriginLocator(?string $originLocator): self
+    public function setCreatedBy($created_by): self
     {
-        $this->originLocator = $originLocator;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of destinationLocator
-     */
-    public function getDestinationLocator(): ?string
-    {
-        return $this->destinationLocator;
-    }
-
-    /**
-     * Set the value of destinationLocator
-     */
-    public function setDestinationLocator(?string $destinationLocator): self
-    {
-        $this->destinationLocator = $destinationLocator;
+        $this->created_by = $created_by;
 
         return $this;
     }
