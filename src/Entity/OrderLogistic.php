@@ -2,7 +2,7 @@
 
 namespace ControleOnline\Entity;
 
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Put;
@@ -22,7 +22,6 @@ use DateTime;
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="order_logistic", indexes={@ORM\Index (name="provider_id", columns={"provider_id"}), @ORM\Index(name="order_id", columns={"order_id"}), @ORM\Index(name="status_id", columns={"status_id"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\OrderLogisticRepository")
- * @ApiFilter(DateFilter::class, properties={"estimatedShippingDate", "shippingDate", "estimatedArrivalDate", "arrivalDate"})
  */
 #[ApiResource(
     operations: [
@@ -35,7 +34,18 @@ use DateTime;
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     security: 'is_granted(\'ROLE_CLIENT\')',
     normalizationContext: ['groups' => ['logistic_read']],
-    denormalizationContext: ['groups' => ['logistic_write']]
+    denormalizationContext: ['groups' => ['logistic_write']],
+    filters: [
+        'date_filter' => [
+            'class' => DateFilter::class,
+            'properties' => [
+                'estimatedShippingDate',
+                'shippingDate',
+                'estimatedArrivalDate',
+                'arrivalDate',
+            ],
+        ],
+    ],
 )]
 #[ApiFilter(
     filterClass: SearchFilter::class,
