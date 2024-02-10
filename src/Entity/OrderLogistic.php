@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Entity;
 
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Put;
@@ -21,6 +22,7 @@ use DateTime;
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="order_logistic", indexes={@ORM\Index (name="provider_id", columns={"provider_id"}), @ORM\Index(name="order_id", columns={"order_id"}), @ORM\Index(name="status_id", columns={"status_id"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\OrderLogisticRepository")
+ * @ApiFilter(DateFilter::class, properties={"estimatedShippingDate", "shippingDate", "estimatedArrivalDate", "arrivalDate"})
  */
 #[ApiResource(
     operations: [
@@ -110,7 +112,7 @@ class OrderLogistic
      *
      * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\City")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="origin_city", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="origin_city_id", referencedColumnName="id")
      * })
      * @Groups({"logistic_read","logistic_write"})
      */
@@ -161,11 +163,11 @@ class OrderLogistic
      *
      * @ORM\ManyToOne(targetEntity="People")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="provider_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="origin_provider_id", referencedColumnName="id")
      * })
      * @Groups({"logistic_read","logistic_write"})
      */
-    private $provider;
+    private $originProvider;
     /**
      * @var \ControleOnline\Entity\Status
      *
@@ -192,7 +194,7 @@ class OrderLogistic
      *
      * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\City")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="destination_city", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="destination_city_id", referencedColumnName="id")
      * })
      * @Groups({"logistic_read","logistic_write"})
      */
@@ -429,27 +431,6 @@ class OrderLogistic
         return $this;
     }
     /**
-     * Get the value of provider
-     *
-     * @return  \People
-     */
-    public function getProvider()
-    {
-        return $this->provider;
-    }
-    /**
-     * Set the value of provider
-     *
-     * @param  \ControleOnline\Entity\People  $provider
-     *
-     * @return  self
-     */
-    public function setProvider(?\ControleOnline\Entity\People $provider)
-    {
-        $this->provider = $provider;
-        return $this;
-    }
-    /**
      * Get the value of status
      *
      * @return  \ControleOnline\Entity\Status
@@ -648,6 +629,24 @@ class OrderLogistic
     public function setCreatedBy($created_by): self
     {
         $this->created_by = $created_by;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of originProvider
+     */
+    public function getOriginProvider()
+    {
+        return $this->originProvider;
+    }
+
+    /**
+     * Set the value of originProvider
+     */
+    public function setOriginProvider($originProvider): self
+    {
+        $this->originProvider = $originProvider;
 
         return $this;
     }
