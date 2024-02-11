@@ -48,6 +48,7 @@ use DateTime;
 #[ApiFilter(
     filterClass: SearchFilter::class,
     properties: [
+        'order'                     => 'exact',
         'order.id'                  => 'exact',
         'order.contract.id'         => 'exact',
         'order.client.name'         => 'partial',
