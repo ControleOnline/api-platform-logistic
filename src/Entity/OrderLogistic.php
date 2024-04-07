@@ -19,7 +19,7 @@ use ControleOnline\Entity\People;
 use DateTime;
 
 /**
- * @ORM\EntityListeners ({App\Listener\LogListener::class})
+ * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="order_logistic", indexes={@ORM\Index (name="provider_id", columns={"provider_id"}), @ORM\Index(name="order_id", columns={"order_id"}), @ORM\Index(name="status_id", columns={"status_id"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\OrderLogisticRepository")
  */
