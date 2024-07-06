@@ -8,7 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Doctrine\ORM\EntityManagerInterface;
 use ControleOnline\Entity\Invoice;
-use ControleOnline\Entity\SalesOrderInvoice;
+use ControleOnline\Entity\OrderInvoice;
 use ControleOnline\Entity\Status;
 use ControleOnline\Entity\Category;
 use ControleOnline\Entity\OrderLogistic;
@@ -201,7 +201,7 @@ class LogisticCommand extends Command
                   ])
                 );
 
-                $orderInvoice = new SalesOrderInvoice();
+                $orderInvoice = new OrderInvoice();
                 $orderInvoice->setInvoice($invoice);
                 $orderInvoice->setOrder($logisticOrder);
                 $orderInvoice->setRealPrice($logisticOrder->getPrice());

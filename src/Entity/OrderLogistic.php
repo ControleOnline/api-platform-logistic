@@ -14,7 +14,7 @@ use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ControleOnline\Entity\Status;
-use ControleOnline\Entity\SalesOrder;
+use ControleOnline\Entity\Order;
 use ControleOnline\Entity\People;
 use DateTime;
 
@@ -157,9 +157,9 @@ class OrderLogistic
      */
     private $balance = 0;
     /**
-     * @var \SalesOrder
+     * @var \Order
      *
-     * @ORM\ManyToOne(targetEntity="SalesOrder")
+     * @ORM\ManyToOne(targetEntity="Order")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="order_id", referencedColumnName="id")
      * })
@@ -423,7 +423,7 @@ class OrderLogistic
     /**
      * Get order
      *
-     * @return \ControleOnline\Entity\SalesOrder
+     * @return \ControleOnline\Entity\Order
      */
     public function getOrder()
     {
@@ -432,9 +432,9 @@ class OrderLogistic
     /**
      * Set order
      *
-     * @param \ControleOnline\Entity\SalesOrder $order
+     * @param \ControleOnline\Entity\Order $order
      */
-    public function setOrder(\ControleOnline\Entity\SalesOrder $order)
+    public function setOrder(\ControleOnline\Entity\Order $order)
     {
         $this->order = $order;
         return $this;
