@@ -243,13 +243,7 @@ class OrderLogistic
      * @Groups({"logistic_read","logistic_write"})
      */
     private $lastModified;
-    /**
-     * @var \OrderLogisticSurveys
-     *
-     * @ORM\OneToOne(targetEntity="OrderLogisticSurveys", mappedBy="order_logistic_id")
-     * @Groups({"logistic_read"})
-     */
-    private $orderLogisticSurvey;
+
     /**
      * Get the value of id
      *
@@ -603,26 +597,6 @@ class OrderLogistic
 
         return $this;
     }
-
-
-    /**
-     * Get the value of orderLogisticSurvey
-     */
-    public function getOrderLogisticSurvey()
-    {
-        return $this->orderLogisticSurvey;
-    }
-
-    /**
-     * Set the value of orderLogisticSurvey
-     */
-    public function setOrderLogisticSurvey(OrderLogisticSurveys $orderLogisticSurvey)
-    {
-        $this->orderLogisticSurvey = $orderLogisticSurvey;
-
-        return $this;
-    }
-
 
     /**
      * Get the value of created_by
