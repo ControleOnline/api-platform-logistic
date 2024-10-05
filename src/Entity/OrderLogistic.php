@@ -26,15 +26,15 @@ use DateTime;
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Put(security: 'is_granted(\'ROLE_CLIENT\')', denormalizationContext: ['groups' => ['logistic_write']]),
+        new Put(security: 'is_granted(\'ROLE_CLIENT\')', denormalizationContext: ['groups' => ['logistic:write']]),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Delete(name: 'order_logistics_delete', security: 'is_granted(\'ROLE_CLIENT\')', denormalizationContext: ['groups' => ['logistic_write']]),
-        new Post(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/order_logistics', denormalizationContext: ['groups' => ['logistic_write']])
+        new Delete(name: 'order_logistics_delete', security: 'is_granted(\'ROLE_CLIENT\')', denormalizationContext: ['groups' => ['logistic:write']]),
+        new Post(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/order_logistics', denormalizationContext: ['groups' => ['logistic:write']])
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     security: 'is_granted(\'ROLE_CLIENT\')',
-    normalizationContext: ['groups' => ['logistic_read']],
-    denormalizationContext: ['groups' => ['logistic_write']],
+    normalizationContext: ['groups' => ['logistic:read']],
+    denormalizationContext: ['groups' => ['logistic:write']],
 )]
 #[ApiFilter(
     filterClass: DateFilter::class,
@@ -74,35 +74,35 @@ class OrderLogistic
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"logistic_read"})
+     * @Groups({"logistic:read"})
      */
     private $id;
     /**
      * @var \DateTime|null
      *
      * @ORM\Column(name="estimated_shipping_date", type="date", nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $estimatedShippingDate = NULL;
     /**
      * @var \DateTime|null
      *
      * @ORM\Column(name="shipping_date", type="date", nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $shippingDate = NULL;
     /**
      * @var \DateTime|null
      *
      * @ORM\Column(name="estimated_arrival_date", type="date", nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $estimatedArrivalDate = NULL;
     /**
      * @var \DateTime|null
      *
      * @ORM\Column(name="arrival_date", type="date", nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $arrivalDate = NULL;
     /**
@@ -112,7 +112,7 @@ class OrderLogistic
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="origin_type", referencedColumnName="id")
      * })
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $originType;
 
@@ -123,7 +123,7 @@ class OrderLogistic
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="origin_city_id", referencedColumnName="id")
      * })
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $originCity = NULL;
 
@@ -131,7 +131,7 @@ class OrderLogistic
      * @var string|null
      *
      * @ORM\Column(name="origin_address", type="string", length=150, nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $originAddress = NULL;
 
@@ -139,21 +139,21 @@ class OrderLogistic
      * @var float
      *
      * @ORM\Column(name="price", type="float", nullable=false)
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $price = 0;
     /**
      * @var float
      *
      * @ORM\Column(name="amount_paid", type="float", nullable=false)
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $amountPaid = 0;
     /**
      * @var float
      *
      * @ORM\Column(name="balance", type="float", nullable=false)
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $balance = 0;
     /**
@@ -163,7 +163,7 @@ class OrderLogistic
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="order_id", referencedColumnName="id")
      * })
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $order;
 
@@ -174,7 +174,7 @@ class OrderLogistic
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="origin_provider_id", referencedColumnName="id")
      * })
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $originProvider;
     /**
@@ -184,7 +184,7 @@ class OrderLogistic
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="status_id", referencedColumnName="id")
      * })
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $status;
     /**
@@ -194,7 +194,7 @@ class OrderLogistic
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="destination_type", referencedColumnName="id")
      * })
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $destinationType;
 
@@ -205,7 +205,7 @@ class OrderLogistic
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="destination_city_id", referencedColumnName="id")
      * })
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
 
     private $destinationCity = NULL;
@@ -213,7 +213,7 @@ class OrderLogistic
      * @var string|null
      *
      * @ORM\Column(name="destination_address", type="string", length=150, nullable=true)
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $destinationAddress = NULL;
 
@@ -224,7 +224,7 @@ class OrderLogistic
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="destination_provider_id", referencedColumnName="id")
      * })
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $destinationProvider;
     /**
@@ -234,13 +234,13 @@ class OrderLogistic
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="created_by", referencedColumnName="id")
      * })
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $created_by;
     /**
      * @var \DateTimeInterface
      * @ORM\Column(name="last_modified", type="datetime",  nullable=false, columnDefinition="DATETIME")
-     * @Groups({"logistic_read","logistic_write"})
+     * @Groups({"logistic:read","logistic:write"})
      */
     private $lastModified;
 
