@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Metadata\Post;
@@ -18,11 +19,6 @@ use ControleOnline\Entity\Order;
 use ControleOnline\Entity\People;
 use DateTime;
 
-/**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="order_logistic", indexes={@ORM\Index (name="provider_id", columns={"provider_id"}), @ORM\Index(name="order_id", columns={"order_id"}), @ORM\Index(name="status_id", columns={"status_id"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\OrderLogisticRepository")
- */
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
@@ -65,183 +61,170 @@ use DateTime;
         'status'                    => 'exact',
     ]
 )]
+#[ORM\Table(name: 'order_logistic')]
+#[ORM\Index(name: 'provider_id', columns: ['provider_id'])]
+#[ORM\Index(name: 'order_id', columns: ['order_id'])]
+#[ORM\Index(name: 'status_id', columns: ['status_id'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\OrderLogisticRepository::class)]
 
 class OrderLogistic
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"logistic:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="estimated_shipping_date", type="date", nullable=true)
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\Column(name: 'estimated_shipping_date', type: 'date', nullable: true)]
     private $estimatedShippingDate = NULL;
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="shipping_date", type="date", nullable=true)
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\Column(name: 'shipping_date', type: 'date', nullable: true)]
     private $shippingDate = NULL;
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="estimated_arrival_date", type="date", nullable=true)
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\Column(name: 'estimated_arrival_date', type: 'date', nullable: true)]
     private $estimatedArrivalDate = NULL;
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="arrival_date", type="date", nullable=true)
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\Column(name: 'arrival_date', type: 'date', nullable: true)]
     private $arrivalDate = NULL;
     /**
      * @var \ControleOnline\Entity\Category
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Category")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="origin_type", referencedColumnName="id")
-     * })
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\JoinColumn(name: 'origin_type', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Category::class)]
     private $originType;
 
     /**
      * @var \ControleOnline\Entity\City
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\City")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="origin_city_id", referencedColumnName="id")
-     * })
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\JoinColumn(name: 'origin_city_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\City::class)]
     private $originCity = NULL;
 
     /**
      * @var string|null
      *
-     * @ORM\Column(name="origin_address", type="string", length=150, nullable=true)
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\Column(name: 'origin_address', type: 'string', length: 150, nullable: true)]
     private $originAddress = NULL;
 
     /**
      * @var float
      *
-     * @ORM\Column(name="price", type="float", nullable=false)
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\Column(name: 'price', type: 'float', nullable: false)]
     private $price = 0;
     /**
      * @var float
      *
-     * @ORM\Column(name="amount_paid", type="float", nullable=false)
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\Column(name: 'amount_paid', type: 'float', nullable: false)]
     private $amountPaid = 0;
     /**
      * @var float
      *
-     * @ORM\Column(name="balance", type="float", nullable=false)
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\Column(name: 'balance', type: 'float', nullable: false)]
     private $balance = 0;
     /**
      * @var \Order
      *
-     * @ORM\ManyToOne(targetEntity="Order")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="order_id", referencedColumnName="id")
-     * })
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\JoinColumn(name: 'order_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \Order::class)]
     private $order;
 
     /**
      * @var \People
      *
-     * @ORM\ManyToOne(targetEntity="People")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="origin_provider_id", referencedColumnName="id")
-     * })
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\JoinColumn(name: 'origin_provider_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \People::class)]
     private $originProvider;
     /**
      * @var \ControleOnline\Entity\Status
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Status")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="status_id", referencedColumnName="id")
-     * })
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\JoinColumn(name: 'status_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Status::class)]
     private $status;
     /**
      * @var \ControleOnline\Entity\Category
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Category")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="destination_type", referencedColumnName="id")
-     * })
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\JoinColumn(name: 'destination_type', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Category::class)]
     private $destinationType;
 
     /**
      * @var \ControleOnline\Entity\City
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\City")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="destination_city_id", referencedColumnName="id")
-     * })
      * @Groups({"logistic:read","logistic:write"})
      */
-
+    #[ORM\JoinColumn(name: 'destination_city_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\City::class)]
     private $destinationCity = NULL;
     /**
      * @var string|null
      *
-     * @ORM\Column(name="destination_address", type="string", length=150, nullable=true)
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\Column(name: 'destination_address', type: 'string', length: 150, nullable: true)]
     private $destinationAddress = NULL;
 
     /**
      * @var \People
      *
-     * @ORM\ManyToOne(targetEntity="People")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="destination_provider_id", referencedColumnName="id")
-     * })
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\JoinColumn(name: 'destination_provider_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \People::class)]
     private $destinationProvider;
     /**
      * @var \People
      *
-     * @ORM\ManyToOne(targetEntity="People")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="created_by", referencedColumnName="id")
-     * })
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\JoinColumn(name: 'created_by', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \People::class)]
     private $created_by;
     /**
      * @var \DateTimeInterface
-     * @ORM\Column(name="last_modified", type="datetime",  nullable=false, columnDefinition="DATETIME")
      * @Groups({"logistic:read","logistic:write"})
      */
+    #[ORM\Column(name: 'last_modified', type: 'datetime', nullable: false, columnDefinition: 'DATETIME')]
     private $lastModified;
 
     /**
