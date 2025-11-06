@@ -27,7 +27,7 @@ use DateTimeInterface;
 #[ORM\Index(name: 'provider_id', columns: ['provider_id'])]
 #[ORM\Index(name: 'order_id', columns: ['order_id'])]
 #[ORM\Index(name: 'status_id', columns: ['status_id'])]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: OrderLogisticRepository::class)]
 #[ApiResource(
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
