@@ -19,7 +19,7 @@ use ControleOnline\Entity\Order;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Status;
 use ControleOnline\Repository\OrderLogisticRepository;
-use ControleOnline\Listener\LogListener;
+
 use DateTime;
 use DateTimeInterface;
 
