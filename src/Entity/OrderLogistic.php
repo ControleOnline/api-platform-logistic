@@ -33,22 +33,22 @@ use DateTimeInterface;
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['logistic:read']],
     denormalizationContext: ['groups' => ['logistic:write']],
-    security: "is_granted('ROLE_CLIENT')",
+    security: "is_granted('ROLE_HUMAN')",
     operations: [
-        new GetCollection(security: "is_granted('ROLE_CLIENT')"),
-        new Get(security: "is_granted('ROLE_CLIENT')"),
+        new GetCollection(security: "is_granted('ROLE_HUMAN')"),
+        new Get(security: "is_granted('ROLE_HUMAN')"),
         new Post(
             uriTemplate: '/order_logistics',
-            security: "is_granted('ROLE_CLIENT')",
+            security: "is_granted('ROLE_HUMAN')",
             denormalizationContext: ['groups' => ['logistic:write']]
         ),
         new Put(
-            security: "is_granted('ROLE_CLIENT')",
+            security: "is_granted('ROLE_HUMAN')",
             denormalizationContext: ['groups' => ['logistic:write']]
         ),
         new Delete(
             name: 'order_logistics_delete',
-            security: "is_granted('ROLE_CLIENT')",
+            security: "is_granted('ROLE_HUMAN')",
             denormalizationContext: ['groups' => ['logistic:write']]
         )
     ]
