@@ -47,7 +47,12 @@ class OrderLogisticsController
     public function request(Request $request, string $orderId): JsonResponse
     {
         try {
-            $payload = $request->toArray();
+            $payload = [];
+            try {
+                $payload = $request->toArray();
+            } catch (\Throwable) {
+                $payload = $request->request->all();
+            }
             $result = $this->logisticsService->requestDelivery($orderId, $payload);
 
             return new JsonResponse(
