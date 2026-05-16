@@ -441,7 +441,7 @@ class QuoteLogisticsService
         $eligible = [];
 
         foreach ($states as $providerKey => $providerState) {
-            if (($providerState['connected'] ?? false) !== true || ($providerState['online'] ?? false) !== true) {
+            if (($providerState['connected'] ?? false) !== true) {
                 continue;
             }
 

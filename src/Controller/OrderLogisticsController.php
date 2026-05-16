@@ -21,6 +21,7 @@ class OrderLogisticsController
     }
 
     #[Route('/marketplace/logistics/orders/{orderId}', name: 'marketplace_logistics_order_show', methods: ['GET'])]
+    #[Route('/orders/{orderId}/logistic', name: 'orders_logistic_order_show', methods: ['GET'])]
     public function show(Request $request, string $orderId): JsonResponse
     {
         try {
@@ -44,6 +45,7 @@ class OrderLogisticsController
     }
 
     #[Route('/marketplace/logistics/orders/{orderId}/quote', name: 'marketplace_logistics_order_quote', methods: ['POST'])]
+    #[Route('/orders/{orderId}/logistic/quote', name: 'orders_logistic_order_quote', methods: ['POST'])]
     public function quote(Request $request, string $orderId): JsonResponse
     {
         try {
@@ -67,6 +69,7 @@ class OrderLogisticsController
     }
 
     #[Route('/marketplace/logistics/orders/{orderId}/quotes/{quoteOrderId}/select', name: 'marketplace_logistics_order_quote_select', methods: ['POST'])]
+    #[Route('/orders/{orderId}/logistic/quotes/{quoteOrderId}/select', name: 'orders_logistic_order_quote_select', methods: ['POST'])]
     public function selectQuote(Request $request, string $orderId, string $quoteOrderId): JsonResponse
     {
         try {
@@ -90,6 +93,7 @@ class OrderLogisticsController
     }
 
     #[Route('/marketplace/logistics/orders/{orderId}/request', name: 'marketplace_logistics_order_request', methods: ['POST'])]
+    #[Route('/orders/{orderId}/logistic/request', name: 'orders_logistic_order_request', methods: ['POST'])]
     public function request(Request $request, string $orderId): JsonResponse
     {
         try {
