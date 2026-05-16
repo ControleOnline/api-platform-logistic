@@ -449,7 +449,7 @@ class QuoteLogisticsService
                 'key' => $providerKey,
                 'label' => self::PROVIDER_DEFINITIONS[$providerKey]['label'],
                 'connected' => true,
-                'online' => true,
+                'online' => (bool) ($providerState['online'] ?? false),
             ];
         }
 
