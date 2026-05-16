@@ -3,7 +3,7 @@
 namespace ControleOnline\Controller;
 
 use ControleOnline\Service\HydratorService;
-use ControleOnline\Service\OrderLogisticsService;
+use ControleOnline\Service\QuoteLogisticsService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +15,7 @@ use Symfony\Component\Security\Http\Attribute\Security as SecurityAttribute;
 class OrderLogisticsController
 {
     public function __construct(
-        private readonly OrderLogisticsService $logisticsService,
+        private readonly QuoteLogisticsService $logisticsService,
         private readonly HydratorService $hydratorService,
     ) {
     }
@@ -24,10 +24,56 @@ class OrderLogisticsController
     public function show(Request $request, string $orderId): JsonResponse
     {
         try {
-            $payload = $this->logisticsService->buildPayload($orderId);
+            $payload = $this->logisticsService->show($orderId);
 
             return new JsonResponse(
                 $this->hydratorService->result([$payload]),
+                Response::HTTP_OK,
+            );
+        } catch (HttpExceptionInterface $exception) {
+            return new JsonResponse(
+                ['error' => $exception->getMessage()],
+                $exception->getStatusCode(),
+            );
+        } catch (\Throwable $exception) {
+            return new JsonResponse(
+                $this->hydratorService->error(new \Exception($exception->getMessage())),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    #[Route('/marketplace/logistics/orders/{orderId}/quote', name: 'marketplace_logistics_order_quote', methods: ['POST'])]
+    public function quote(Request $request, string $orderId): JsonResponse
+    {
+        try {
+            $result = $this->logisticsService->quote($orderId);
+
+            return new JsonResponse(
+                $this->hydratorService->result([$result]),
+                Response::HTTP_OK,
+            );
+        } catch (HttpExceptionInterface $exception) {
+            return new JsonResponse(
+                ['error' => $exception->getMessage()],
+                $exception->getStatusCode(),
+            );
+        } catch (\Throwable $exception) {
+            return new JsonResponse(
+                $this->hydratorService->error(new \Exception($exception->getMessage())),
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    #[Route('/marketplace/logistics/orders/{orderId}/quotes/{quoteOrderId}/select', name: 'marketplace_logistics_order_quote_select', methods: ['POST'])]
+    public function selectQuote(Request $request, string $orderId, string $quoteOrderId): JsonResponse
+    {
+        try {
+            $result = $this->logisticsService->selectQuote($orderId, $quoteOrderId);
+
+            return new JsonResponse(
+                $this->hydratorService->result([$result]),
                 Response::HTTP_OK,
             );
         } catch (HttpExceptionInterface $exception) {
