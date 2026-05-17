@@ -51,11 +51,13 @@ class QuoteLogisticsService
     {
         $rootOrder = $this->resolveRootOrder($orderReference);
         $this->assertAccess($rootOrder);
+        $provider = $this->resolveOrderProvider($rootOrder);
 
         $pickupAddress = $this->resolvePickupAddress($rootOrder, false);
         $dropoffAddress = $this->resolveDropoffAddress($rootOrder);
-        $providers = $this->resolveEligibleProviders($rootOrder);
+        $providers = $this->resolveDisplayProviders($provider);
         $quotes = $this->loadQuoteOrders($rootOrder);
+        $eligibleProviders = $this->resolveEligibleProviders($provider);
 
         return [
             'order' => $this->normalizeOrderSummary($rootOrder),
@@ -76,7 +78,7 @@ class QuoteLogisticsService
             'quotes' => $quotes,
             'selection' => $this->normalizeSelection($rootOrder),
             'quoteStatus' => $this->normalizeQuoteStatus($providers, $quotes),
-            'canQuote' => count($providers) > 0,
+            'canQuote' => count($eligibleProviders) > 0,
         ];
     }
 
@@ -84,6 +86,7 @@ class QuoteLogisticsService
     {
         $rootOrder = $this->resolveRootOrder($orderReference);
         $this->assertAccess($rootOrder);
+        $provider = $this->resolveOrderProvider($rootOrder);
 
         $pickupAddress = $this->resolvePickupAddress($rootOrder, true);
         $dropoffAddress = $this->resolveDropoffAddress($rootOrder);
@@ -95,9 +98,9 @@ class QuoteLogisticsService
             throw new BadRequestHttpException('Pedido sem endereco de entrega valido.');
         }
 
-        $providers = $this->resolveEligibleProviders($rootOrder);
+        $providers = $this->resolveEligibleProviders($provider);
         if ($providers === []) {
-            throw new BadRequestHttpException('Nenhuma integracao online disponivel para cotacao.');
+            throw new BadRequestHttpException('Nenhuma integracao conectada disponivel para cotacao.');
         }
 
         $batchId = $this->buildBatchId($rootOrder);
@@ -426,13 +429,39 @@ class QuoteLogisticsService
         return null;
     }
 
-    private function resolveEligibleProviders(Order $rootOrder): array
+    private function resolveOrderProvider(Order $order): People
     {
-        $provider = $rootOrder->getProvider();
+        $provider = $order->getProvider();
         if (!$provider instanceof People) {
-            return [];
+            throw new BadRequestHttpException('Pedido sem empresa vinculada para cotacao.');
         }
 
+        return $provider;
+    }
+
+    private function resolveDisplayProviders(People $provider): array
+    {
+        $states = $this->resolveProviderStates($provider);
+        $providers = [];
+
+        foreach ($states as $providerKey => $providerState) {
+            if (($providerState['connected'] ?? false) !== true) {
+                continue;
+            }
+
+            $providers[] = [
+                'key' => $providerKey,
+                'label' => self::PROVIDER_DEFINITIONS[$providerKey]['label'],
+                'connected' => true,
+                'online' => (bool) ($providerState['online'] ?? false),
+            ];
+        }
+
+        return $providers;
+    }
+
+    private function resolveEligibleProviders(People $provider): array
+    {
         $states = $this->resolveProviderStates($provider);
         $eligible = [];
 
@@ -585,21 +614,7 @@ class QuoteLogisticsService
             );
         }
 
-        $priority = array_flip(array_keys(self::PROVIDER_DEFINITIONS));
-        usort($quotes, function (array $left, array $right) use ($priority): int {
-            $leftKey = $left['providerKey'] ?? '';
-            $rightKey = $right['providerKey'] ?? '';
-            $leftPriority = $priority[$leftKey] ?? 999;
-            $rightPriority = $priority[$rightKey] ?? 999;
-
-            if ($leftPriority === $rightPriority) {
-                return (int) ($right['id'] ?? 0) <=> (int) ($left['id'] ?? 0);
-            }
-
-            return $leftPriority <=> $rightPriority;
-        });
-
-        return $quotes;
+        return $this->sortQuoteSummaries($quotes);
     }
 
     private function normalizeQuoteSummary(Order $quoteOrder, ?array $providerState = null): array
@@ -947,5 +962,44 @@ class QuoteLogisticsService
 
         return in_array($state, ['ready', 'selected', 'requested'], true)
             || $this->normalizeQuotePrice($quoteOrder, $quoteState) !== null;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $quotes
+     * @return array<int, array<string, mixed>>
+     */
+    private function sortQuoteSummaries(array $quotes): array
+    {
+        $priority = array_flip(array_keys(self::PROVIDER_DEFINITIONS));
+
+        usort($quotes, function (array $left, array $right) use ($priority): int {
+            $leftHasPrice = isset($left['price']) && $left['price'] !== null && is_numeric($left['price']);
+            $rightHasPrice = isset($right['price']) && $right['price'] !== null && is_numeric($right['price']);
+
+            if ($leftHasPrice !== $rightHasPrice) {
+                return $leftHasPrice ? -1 : 1;
+            }
+
+            if ($leftHasPrice && $rightHasPrice) {
+                $leftPrice = round((float) $left['price'], 2);
+                $rightPrice = round((float) $right['price'], 2);
+                if ($leftPrice !== $rightPrice) {
+                    return $leftPrice <=> $rightPrice;
+                }
+            }
+
+            $leftKey = $left['providerKey'] ?? '';
+            $rightKey = $right['providerKey'] ?? '';
+            $leftPriority = $priority[$leftKey] ?? 999;
+            $rightPriority = $priority[$rightKey] ?? 999;
+
+            if ($leftPriority !== $rightPriority) {
+                return $leftPriority <=> $rightPriority;
+            }
+
+            return (int) ($left['id'] ?? 0) <=> (int) ($right['id'] ?? 0);
+        });
+
+        return $quotes;
     }
 }
