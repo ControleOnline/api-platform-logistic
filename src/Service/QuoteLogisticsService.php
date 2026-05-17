@@ -62,12 +62,8 @@ class QuoteLogisticsService
             'route' => [
                 'pickupAddress' => $this->normalizeAddressSnapshot($pickupAddress),
                 'dropoffAddress' => $this->normalizeAddressSnapshot($dropoffAddress),
-                'pickupContact' => $this->normalizePeopleSnapshot(
-                    $rootOrder->getRetrieveContact() ?: $rootOrder->getProvider()
-                ),
-                'dropoffContact' => $this->normalizePeopleSnapshot(
-                    $rootOrder->getDeliveryContact() ?: $rootOrder->getClient()
-                ),
+                'pickupContact' => $this->normalizePeopleSnapshot($rootOrder->getRetrieveContact()),
+                'dropoffContact' => $this->normalizePeopleSnapshot($rootOrder->getDeliveryContact()),
             ],
             'management' => [
                 'mode' => 'quote',
@@ -519,18 +515,19 @@ class QuoteLogisticsService
         $providerKey = (string) $provider['key'];
         $providerLabel = (string) $provider['label'];
         $logistics = $this->extractLogisticsState($quoteOrder);
+        $providerApp = self::PROVIDER_DEFINITIONS[$providerKey]['app'];
 
         $quoteOrder->setMainOrder($rootOrder);
         $quoteOrder->setMainOrderId($rootOrder->getId());
         $quoteOrder->setProvider($rootOrder->getProvider());
         $quoteOrder->setClient($rootOrder->getClient());
-        $quoteOrder->setPayer($rootOrder->getPayer() ?: $rootOrder->getClient());
+        $quoteOrder->setPayer($rootOrder->getPayer());
         $quoteOrder->setAddressOrigin($pickupAddress);
         $quoteOrder->setAddressDestination($dropoffAddress);
-        $quoteOrder->setRetrieveContact($rootOrder->getRetrieveContact() ?: $rootOrder->getProvider());
-        $quoteOrder->setDeliveryContact($rootOrder->getDeliveryContact() ?: $rootOrder->getClient());
+        $quoteOrder->setRetrieveContact($rootOrder->getRetrieveContact());
+        $quoteOrder->setDeliveryContact($rootOrder->getDeliveryContact());
         $quoteOrder->setOrderType(Order::ORDER_TYPE_DELIVERY);
-        $quoteOrder->setApp(self::PROVIDER_DEFINITIONS[$providerKey]['app'] ?? $providerKey);
+        $quoteOrder->setApp($providerApp);
         $quoteOrder->setPrice(0);
 
         $quoteOrder->setStatus($this->statusService->discoveryStatus('pending', 'quote', 'order'));
@@ -608,13 +605,8 @@ class QuoteLogisticsService
     private function normalizeQuoteSummary(Order $quoteOrder, ?array $providerState = null): array
     {
         $logistics = $this->extractLogisticsState($quoteOrder);
-        $providerKey = $this->normalizeProviderKey(
-            $quoteOrder->getApp() ?: ($logistics['provider_key'] ?? null)
-        );
-        $providerDefinition = self::PROVIDER_DEFINITIONS[$providerKey] ?? [
-            'label' => $providerKey !== '' ? $providerKey : 'Integracao',
-            'app' => $quoteOrder->getApp(),
-        ];
+        $providerKey = $this->normalizeProviderKey($quoteOrder->getApp());
+        $providerDefinition = self::PROVIDER_DEFINITIONS[$providerKey];
 
         $quoteState = $this->normalizeText($logistics['quote_state'] ?? 'pending');
         $price = $this->normalizeQuotePrice($quoteOrder, $logistics);
@@ -662,11 +654,11 @@ class QuoteLogisticsService
             'status' => $this->normalizeStatusSnapshot($order->getStatus()),
             'provider' => $this->normalizePeopleSnapshot($order->getProvider()),
             'client' => $this->normalizePeopleSnapshot($order->getClient()),
-            'payer' => $this->normalizePeopleSnapshot($order->getPayer() ?: $order->getClient()),
+            'payer' => $this->normalizePeopleSnapshot($order->getPayer()),
             'addressOrigin' => $this->normalizeAddressSnapshot($order->getAddressOrigin()),
             'addressDestination' => $this->normalizeAddressSnapshot($order->getAddressDestination()),
-            'retrieveContact' => $this->normalizePeopleSnapshot($order->getRetrieveContact() ?: $order->getProvider()),
-            'deliveryContact' => $this->normalizePeopleSnapshot($order->getDeliveryContact() ?: $order->getClient()),
+            'retrieveContact' => $this->normalizePeopleSnapshot($order->getRetrieveContact()),
+            'deliveryContact' => $this->normalizePeopleSnapshot($order->getDeliveryContact()),
             'comments' => $this->normalizeText($order->getComments()),
             'otherInformations' => [
                 'logistics' => $this->extractLogisticsState($order),
