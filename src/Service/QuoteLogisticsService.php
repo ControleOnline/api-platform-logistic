@@ -867,30 +867,14 @@ class QuoteLogisticsService
 
     private function extractLogisticsState(Order $order): array
     {
-        $otherInformations = $order->getOtherInformations(true);
-        if (is_object($otherInformations)) {
-            $otherInformations = (array) $otherInformations;
-        }
+        $otherInformations = $this->normalizeOtherInformations($order->getOtherInformations(true));
 
-        if (!is_array($otherInformations)) {
-            return [];
-        }
-
-        $logistics = $otherInformations['logistics'] ?? [];
-
-        return is_array($logistics) ? $logistics : [];
+        return $this->normalizeLogisticsState($otherInformations['logistics'] ?? []);
     }
 
     private function replaceLogisticsState(Order $order, array $logistics): array
     {
-        $otherInformations = $order->getOtherInformations(true);
-        if (is_object($otherInformations)) {
-            $otherInformations = (array) $otherInformations;
-        }
-
-        if (!is_array($otherInformations)) {
-            $otherInformations = [];
-        }
+        $otherInformations = $this->normalizeOtherInformations($order->getOtherInformations(true));
 
         $otherInformations['logistics'] = $logistics;
 
@@ -951,6 +935,50 @@ class QuoteLogisticsService
     private function normalizeText(mixed $value): string
     {
         return trim((string) ($value ?? ''));
+    }
+
+    private function normalizeOtherInformations(mixed $value): array
+    {
+        if ($value === null || $value === '') {
+            return [];
+        }
+
+        if (is_array($value)) {
+            $normalized = json_decode(json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), true);
+
+            return is_array($normalized) ? $normalized : [];
+        }
+
+        if (is_object($value)) {
+            $normalized = json_decode(json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), true);
+
+            return is_array($normalized) ? $normalized : [];
+        }
+
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return [];
+    }
+
+    private function normalizeLogisticsState(mixed $value): array
+    {
+        if (is_object($value) || is_array($value)) {
+            $normalized = json_decode(json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), true);
+
+            return is_array($normalized) ? $normalized : [];
+        }
+
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return [];
     }
 
     private function buildBatchId(Order $rootOrder): string
