@@ -64,6 +64,7 @@ class QuoteLogisticsService
                 'dropoffAddress' => $this->normalizeAddressSnapshot($dropoffAddress),
                 'pickupContact' => $this->normalizePeopleSnapshot($rootOrder->getRetrieveContact()),
                 'dropoffContact' => $this->normalizePeopleSnapshot($rootOrder->getDeliveryContact()),
+                'courierContact' => $this->normalizePeopleSnapshot($rootOrder->getDeliveryPeople()),
             ],
             'management' => [
                 'mode' => 'quote',
@@ -672,6 +673,8 @@ class QuoteLogisticsService
             'addressDestination' => $this->normalizeAddressSnapshot($order->getAddressDestination()),
             'retrieveContact' => $this->normalizePeopleSnapshot($order->getRetrieveContact()),
             'deliveryContact' => $this->normalizePeopleSnapshot($order->getDeliveryContact()),
+            'deliveryPeopleId' => $order->getDeliveryPeople()?->getId(),
+            'deliveryPeople' => $this->normalizePeopleSnapshot($order->getDeliveryPeople()),
             'comments' => $this->normalizeText($order->getComments()),
             'otherInformations' => [
                 'logistics' => $this->extractLogisticsState($order),
