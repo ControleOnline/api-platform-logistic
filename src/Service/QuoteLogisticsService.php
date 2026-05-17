@@ -9,14 +9,12 @@ use ControleOnline\Entity\Order;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Phone;
 use ControleOnline\Entity\Status;
-use ControleOnline\Message\GenerateLogisticsQuoteMessage;
 use ControleOnline\Service\Client\WebsocketClient;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 class QuoteLogisticsService
 {
@@ -39,7 +37,7 @@ class QuoteLogisticsService
         private readonly EntityManagerInterface $manager,
         private readonly PeopleRoleService $peopleRoleService,
         private readonly StatusService $statusService,
-        private readonly MessageBusInterface $bus,
+        private readonly IntegrationService $integrationService,
         private readonly Food99Service $food99Service,
         private readonly iFoodService $iFoodService,
         private readonly UberService $uberService,
@@ -909,7 +907,21 @@ class QuoteLogisticsService
 
     private function dispatchQuoteJob(Order $quoteOrder): void
     {
-        $this->bus->dispatch(new GenerateLogisticsQuoteMessage((int) $quoteOrder->getId()));
+        $provider = $quoteOrder->getProvider();
+        $payload = [
+            'quote_order_id' => $quoteOrder->getId(),
+            'main_order_id' => $quoteOrder->getMainOrderId(),
+            'provider_key' => $this->normalizeProviderKey($quoteOrder->getApp()),
+            'batch_id' => $this->normalizeText($this->extractLogisticsState($quoteOrder)['batch_id'] ?? ''),
+        ];
+
+        $this->integrationService->addIntegration(
+            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
+            'LogisticsQuote',
+            null,
+            null,
+            $provider instanceof People ? $provider : null
+        );
     }
 
     private function normalizeProviderKey(?string $value): string
