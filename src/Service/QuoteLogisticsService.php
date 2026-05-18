@@ -97,6 +97,11 @@ class QuoteLogisticsService
             throw new BadRequestHttpException('Pedido sem endereco de entrega valido.');
         }
 
+        $routeError = $this->validateQuoteRoute($pickupAddress, $dropoffAddress);
+        if ($routeError !== null) {
+            throw new BadRequestHttpException($routeError);
+        }
+
         $providers = $this->resolveEligibleProviders($provider);
         if ($providers === []) {
             throw new BadRequestHttpException('Nenhuma integracao conectada disponivel para cotacao.');
@@ -177,6 +182,8 @@ class QuoteLogisticsService
         $quoteOrder = $this->resolveQuoteOrder($rootOrder, $quoteOrderReference);
         $quoteState = $this->extractLogisticsState($quoteOrder);
         $quoteProviderKey = $this->normalizeProviderKey($quoteOrder->getApp());
+        $pickupAddress = $this->resolvePickupAddress($quoteOrder, false);
+        $dropoffAddress = $this->resolveDropoffAddress($quoteOrder);
 
         if ($quoteProviderKey === '') {
             throw new BadRequestHttpException('Cotacao sem provider valido.');
@@ -184,6 +191,11 @@ class QuoteLogisticsService
 
         if (!$this->isQuoteReady($quoteOrder, $quoteState)) {
             throw new BadRequestHttpException('Cotacao ainda nao foi concluida.');
+        }
+
+        $routeError = $this->validateQuoteRoute($pickupAddress, $dropoffAddress);
+        if ($routeError !== null) {
+            throw new BadRequestHttpException($routeError);
         }
 
         $result = match ($quoteProviderKey) {
@@ -411,6 +423,65 @@ class QuoteLogisticsService
         $dropoffAddress = $order->getAddressDestination();
 
         return $dropoffAddress instanceof Address ? $dropoffAddress : null;
+    }
+
+    private function validateQuoteRoute(?Address $pickupAddress, ?Address $dropoffAddress): ?string
+    {
+        if (!$pickupAddress instanceof Address) {
+            return 'Pedido sem endereco de coleta valido.';
+        }
+
+        if (!$dropoffAddress instanceof Address) {
+            return 'Pedido sem endereco de entrega valido.';
+        }
+
+        if (!$this->isCompleteAddress($pickupAddress)) {
+            return 'Pedido sem endereco de coleta valido.';
+        }
+
+        if (!$this->isCompleteAddress($dropoffAddress)) {
+            return 'Pedido sem endereco de entrega valido.';
+        }
+
+        if ($this->normalizeAddressRouteSignature($pickupAddress) === $this->normalizeAddressRouteSignature($dropoffAddress)) {
+            return 'Endereco de coleta e entrega nao podem ser iguais.';
+        }
+
+        return null;
+    }
+
+    private function isCompleteAddress(Address $address): bool
+    {
+        $street = $address->getStreet();
+        $district = $street?->getDistrict();
+        $city = $district?->getCity();
+        $state = $city?->getState();
+        $cep = $street?->getCep();
+
+        return $this->normalizeText($street?->getStreet()) !== ''
+            && $this->normalizeText($district?->getDistrict()) !== ''
+            && $this->normalizeText($city?->getCity()) !== ''
+            && $this->normalizeText($state?->getUf() ?: $state?->getState()) !== ''
+            && $this->normalizeText($cep?->getCep()) !== '';
+    }
+
+    private function normalizeAddressRouteSignature(Address $address): string
+    {
+        $street = $address->getStreet();
+        $district = $street?->getDistrict();
+        $city = $district?->getCity();
+        $state = $city?->getState();
+        $cep = $street?->getCep();
+
+        return strtolower(implode('|', [
+            $this->normalizeText($street?->getStreet()),
+            $this->normalizeText((string) $address->getNumber()),
+            $this->normalizeText($address->getComplement()),
+            $this->normalizeText($district?->getDistrict()),
+            $this->normalizeText($city?->getCity()),
+            $this->normalizeText($state?->getUf() ?: $state?->getState()),
+            preg_replace('/\D+/', '', $this->normalizeText($cep?->getCep())),
+        ]));
     }
 
     private function resolvePeoplePrimaryAddress(?People $people): ?Address
