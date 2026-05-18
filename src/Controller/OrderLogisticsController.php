@@ -33,7 +33,7 @@ class OrderLogisticsController
             );
         } catch (HttpExceptionInterface $exception) {
             return new JsonResponse(
-                ['error' => $exception->getMessage()],
+                $this->hydratorService->error(new \Exception($exception->getMessage())),
                 $exception->getStatusCode(),
             );
         } catch (\Throwable $exception) {
@@ -57,7 +57,7 @@ class OrderLogisticsController
             );
         } catch (HttpExceptionInterface $exception) {
             return new JsonResponse(
-                ['error' => $exception->getMessage()],
+                $this->hydratorService->error(new \Exception($exception->getMessage())),
                 $exception->getStatusCode(),
             );
         } catch (\Throwable $exception) {
@@ -81,7 +81,7 @@ class OrderLogisticsController
             );
         } catch (HttpExceptionInterface $exception) {
             return new JsonResponse(
-                ['error' => $exception->getMessage()],
+                $this->hydratorService->error(new \Exception($exception->getMessage())),
                 $exception->getStatusCode(),
             );
         } catch (\Throwable $exception) {
@@ -111,7 +111,7 @@ class OrderLogisticsController
             );
         } catch (HttpExceptionInterface $exception) {
             return new JsonResponse(
-                ['error' => $exception->getMessage()],
+                $this->hydratorService->error(new \Exception($exception->getMessage())),
                 $exception->getStatusCode(),
             );
         } catch (\Throwable $exception) {
