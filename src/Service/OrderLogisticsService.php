@@ -8,6 +8,8 @@ use ControleOnline\Entity\People;
 use ControleOnline\Entity\PeopleLink;
 use ControleOnline\Entity\Phone;
 use ControleOnline\Entity\Status;
+use ControleOnline\Service\Marketplace\MarketplaceOrderSnapshotProviderInterface;
+use ControleOnline\Service\Marketplace\MarketplaceProviderRegistry;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -24,6 +26,7 @@ class OrderLogisticsService
         private readonly Food99Service $food99Service,
         private readonly iFoodService $iFoodService,
         private readonly UberService $uberService,
+        private readonly ?MarketplaceProviderRegistry $marketplaceProviderRegistry = null,
     ) {
     }
 
@@ -49,10 +52,10 @@ class OrderLogisticsService
         $couriers = $managedByStore && $provider instanceof People
             ? $this->resolveCouriers($provider, (int) ($order->getDeliveryPeople()?->getId() ?? 0))
             : [];
-        $iFoodState = $this->iFoodService->getStoredOrderIntegrationState($order);
-        $iFoodSnapshot = $this->iFoodService->getOrderHomologationSnapshot($order);
-        $food99State = $this->food99Service->getStoredOrderIntegrationState($order);
-        $food99Snapshot = $this->food99Service->getOrderHomologationSnapshot($order);
+        $iFoodState = $this->resolveMarketplaceOrderIntegrationState('ifood', $order);
+        $iFoodSnapshot = $this->resolveMarketplaceOrderSnapshot('ifood', $order);
+        $food99State = $this->resolveMarketplaceOrderIntegrationState('food99', $order);
+        $food99Snapshot = $this->resolveMarketplaceOrderSnapshot('food99', $order);
         $marketplaceCards = $this->buildMarketplaceCards(
             $order,
             $managedByStore,
@@ -564,6 +567,44 @@ class OrderLogisticsService
     private function isMarketplaceManaged(Order $order): bool
     {
         return in_array($this->normalizeText($order->getApp()), self::INTEGRATED_ORDER_APPS, true);
+    }
+
+    private function resolveMarketplaceOrderSnapshotProvider(string $providerKey): ?MarketplaceOrderSnapshotProviderInterface
+    {
+        $normalizedProviderKey = $this->normalizeText($providerKey);
+
+        if ($this->marketplaceProviderRegistry instanceof MarketplaceProviderRegistry) {
+            $snapshotProvider = $this->marketplaceProviderRegistry->resolveOrderSnapshotProvider($normalizedProviderKey);
+            if ($snapshotProvider instanceof MarketplaceOrderSnapshotProviderInterface) {
+                return $snapshotProvider;
+            }
+        }
+
+        return match ($normalizedProviderKey) {
+            'ifood' => $this->iFoodService,
+            'food99' => $this->food99Service,
+            default => null,
+        };
+    }
+
+    private function resolveMarketplaceOrderIntegrationState(string $providerKey, Order $order): array
+    {
+        $snapshotProvider = $this->resolveMarketplaceOrderSnapshotProvider($providerKey);
+        if (!$snapshotProvider instanceof MarketplaceOrderSnapshotProviderInterface) {
+            return [];
+        }
+
+        return $snapshotProvider->getStoredOrderIntegrationState($order);
+    }
+
+    private function resolveMarketplaceOrderSnapshot(string $providerKey, Order $order): array
+    {
+        $snapshotProvider = $this->resolveMarketplaceOrderSnapshotProvider($providerKey);
+        if (!$snapshotProvider instanceof MarketplaceOrderSnapshotProviderInterface) {
+            return [];
+        }
+
+        return $snapshotProvider->getOrderHomologationSnapshot($order);
     }
 
     private function resolveUberState(array $otherInformations): array

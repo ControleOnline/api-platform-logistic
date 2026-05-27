@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Service;
 
+use ControleOnline\Service\Marketplace\MarketplaceProviderRegistry;
 use ControleOnline\Service\Client\WebsocketClient;
 use Doctrine\ORM\EntityManagerInterface;
 use ReflectionNamedType;
@@ -20,6 +21,7 @@ class QuoteLogisticsServiceFactory
         private readonly UberService $uberService,
         private readonly WebsocketClient $websocketClient,
         private readonly ?IntegrationService $integrationService = null,
+        private readonly ?MarketplaceProviderRegistry $marketplaceProviderRegistry = null,
     ) {
     }
 
@@ -60,6 +62,7 @@ class QuoteLogisticsServiceFactory
             Food99Service::class => $this->food99Service,
             iFoodService::class => $this->iFoodService,
             UberService::class => $this->uberService,
+            MarketplaceProviderRegistry::class => $this->marketplaceProviderRegistry,
             WebsocketClient::class => $this->websocketClient,
             default => throw new \LogicException(sprintf('Dependencia nao mapeada para QuoteLogisticsService: %s', $parameter->getName())),
         };
