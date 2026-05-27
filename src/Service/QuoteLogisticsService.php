@@ -10,6 +10,9 @@ use ControleOnline\Entity\People;
 use ControleOnline\Entity\Phone;
 use ControleOnline\Entity\Status;
 use ControleOnline\Service\Client\WebsocketClient;
+use ControleOnline\Service\Marketplace\MarketplaceIntegrationStateProviderInterface;
+use ControleOnline\Service\Marketplace\MarketplaceLogisticsQuoteProviderInterface;
+use ControleOnline\Service\Marketplace\MarketplaceProviderRegistry;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -42,6 +45,7 @@ class QuoteLogisticsService
         private readonly iFoodService $iFoodService,
         private readonly UberService $uberService,
         private readonly WebsocketClient $websocketClient,
+        private readonly ?MarketplaceProviderRegistry $marketplaceProviderRegistry = null,
     ) {
     }
 
@@ -198,12 +202,12 @@ class QuoteLogisticsService
             throw new BadRequestHttpException($routeError);
         }
 
-        $result = match ($quoteProviderKey) {
-            'ifood' => $this->iFoodService->requestDeliveryFromQuote($quoteOrder),
-            'uber' => $this->uberService->requestDeliveryFromQuote($quoteOrder),
-            'food99' => $this->food99Service->requestDeliveryFromQuote($quoteOrder),
-            default => throw new BadRequestHttpException('Provider de cotacao invalido.'),
-        };
+        $provider = $this->resolveMarketplaceQuoteProvider($quoteProviderKey);
+        if (!$provider instanceof MarketplaceLogisticsQuoteProviderInterface) {
+            throw new BadRequestHttpException('Provider de cotacao invalido.');
+        }
+
+        $result = $provider->requestDeliveryFromQuote($quoteOrder);
 
         if ((int) ($result['errno'] ?? 0) !== 0) {
             throw new BadRequestHttpException(
@@ -557,17 +561,17 @@ class QuoteLogisticsService
             'ifood' => $this->normalizeProviderState(
                 'ifood',
                 self::PROVIDER_DEFINITIONS['ifood']['label'],
-                $this->iFoodService->getStoredIntegrationState($provider)
+                $this->resolveMarketplaceIntegrationState('ifood', $provider)
             ),
             'uber' => $this->normalizeProviderState(
                 'uber',
                 self::PROVIDER_DEFINITIONS['uber']['label'],
-                $this->uberService->getStoredIntegrationState($provider)
+                $this->resolveMarketplaceIntegrationState('uber', $provider)
             ),
             'food99' => $this->normalizeProviderState(
                 'food99',
                 self::PROVIDER_DEFINITIONS['food99']['label'],
-                $this->food99Service->getStoredIntegrationState($provider)
+                $this->resolveMarketplaceIntegrationState('food99', $provider)
             ),
         ];
     }
@@ -990,6 +994,44 @@ class QuoteLogisticsService
         }
 
         return strtolower($normalized);
+    }
+
+    private function resolveMarketplaceIntegrationState(string $providerKey, People $provider): array
+    {
+        $normalizedProviderKey = $this->normalizeProviderKey($providerKey);
+
+        if ($this->marketplaceProviderRegistry instanceof MarketplaceProviderRegistry) {
+            $integrationStateProvider = $this->marketplaceProviderRegistry->resolveIntegrationStateProvider($normalizedProviderKey);
+            if ($integrationStateProvider instanceof MarketplaceIntegrationStateProviderInterface) {
+                return $integrationStateProvider->getStoredIntegrationState($provider);
+            }
+        }
+
+        return match ($normalizedProviderKey) {
+            'ifood' => $this->iFoodService->getStoredIntegrationState($provider),
+            'uber' => $this->uberService->getStoredIntegrationState($provider),
+            'food99' => $this->food99Service->getStoredIntegrationState($provider),
+            default => [],
+        };
+    }
+
+    private function resolveMarketplaceQuoteProvider(string $providerKey): ?MarketplaceLogisticsQuoteProviderInterface
+    {
+        $normalizedProviderKey = $this->normalizeProviderKey($providerKey);
+
+        if ($this->marketplaceProviderRegistry instanceof MarketplaceProviderRegistry) {
+            $provider = $this->marketplaceProviderRegistry->resolveLogisticsQuoteProvider($normalizedProviderKey);
+            if ($provider instanceof MarketplaceLogisticsQuoteProviderInterface) {
+                return $provider;
+            }
+        }
+
+        return match ($normalizedProviderKey) {
+            'ifood' => $this->iFoodService,
+            'uber' => $this->uberService,
+            'food99' => $this->food99Service,
+            default => null,
+        };
     }
 
     private function normalizeEntityId(mixed $value): ?int
