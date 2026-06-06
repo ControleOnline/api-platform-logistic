@@ -13,6 +13,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Table(name: 'delivery_courier_company_presence_schedule')]
 #[ORM\UniqueConstraint(name: 'delivery_courier_company_presence_schedule_unique', columns: ['presence_id', 'schedule_id'])]
+#[ORM\Entity]
 class DeliveryCourierCompanyPresenceSchedule
 {
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]

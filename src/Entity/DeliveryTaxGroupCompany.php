@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Table(name: 'delivery_tax_group_company')]
 #[ORM\UniqueConstraint(name: 'delivery_tax_group_company_unique', columns: ['delivery_tax_group_id', 'people_id'])]
+#[ORM\Entity]
 class DeliveryTaxGroupCompany
 {
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
