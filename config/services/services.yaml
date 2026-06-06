@@ -23,3 +23,7 @@ services:
         tags:
             - { name: 'api_platform.doctrine.orm.query_extension.collection' }
             - { name: 'api_platform.doctrine.orm.query_extension.item' }
+    ControleOnline\Doctrine\Extension\DeliveryCourierPresenceSecurityExtension:
+        tags:
+            - { name: 'api_platform.doctrine.orm.query_extension.collection' }
+            - { name: 'api_platform.doctrine.orm.query_extension.item' }
