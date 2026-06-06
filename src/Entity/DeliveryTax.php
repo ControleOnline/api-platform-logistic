@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Table(name: 'delivery_tax')]
 #[ORM\Index(name: 'delivery_tax_group_id_idx', columns: ['delivery_tax_group_id'])]
+#[ORM\Entity]
 class DeliveryTax
 {
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
