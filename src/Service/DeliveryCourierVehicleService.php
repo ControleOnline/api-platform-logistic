@@ -5,7 +5,7 @@
  * - Vehicle registration is a dedicated courier-owned table separate from delivery-rate versions.
  * - The vehicle record stores a rich identity snapshot with brand, model, year, plate, and optional color.
  * - The first vehicle can be registered by a standalone authenticated user before any company link exists.
- * - Company-only users cannot create or overwrite a courier vehicle.
+ * - Only physical-person accounts can manage this record; legal-entity accounts are blocked.
  */
 
 namespace ControleOnline\Service;
@@ -92,7 +92,7 @@ class DeliveryCourierVehicleService
     {
         $currentPeople = $this->requireCurrentPeople();
         if (!$this->canManageVehicle($currentPeople)) {
-            throw new AccessDeniedHttpException('Somente o motoboy pode registrar o veículo.');
+            throw new AccessDeniedHttpException('Somente pessoa física pode registrar o veículo.');
         }
 
         $vehicle = $this->resolveCurrentVehicle($currentPeople) ?? new DeliveryCourierVehicle();
@@ -179,12 +179,7 @@ class DeliveryCourierVehicleService
 
     private function canManageVehicle(People $people): bool
     {
-        $roles = array_values(array_filter(
-            $this->peopleRoleService->getAllRoles($people),
-            static fn (string $role): bool => $role !== 'guest'
-        ));
-
-        return $roles === [] || in_array('courier', $roles, true);
+        return strtoupper(trim((string) $people->getPeopleType())) !== 'J';
     }
 
     private function requireCurrentPeople(): People

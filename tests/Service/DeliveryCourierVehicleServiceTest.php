@@ -4,8 +4,8 @@
  * Contract imported from MODOS_OPERACAO.md
  * - Vehicle setup is a dedicated courier table.
  * - The courier vehicle payload must include brand, model, year, and plate before the save succeeds.
- * - A standalone authenticated user can register the first vehicle.
- * - Company-only users cannot create or overwrite courier vehicles.
+ * - A standalone authenticated person can register the first vehicle.
+ * - Legal-entity accounts cannot create or overwrite courier vehicles.
  */
 
 namespace ControleOnline\Logistic\Tests\Service;
@@ -32,6 +32,7 @@ class DeliveryCourierVehicleServiceTest extends TestCase
     {
         $currentPeople = $this->createMock(People::class);
         $currentPeople->method('getId')->willReturn(7);
+        $currentPeople->method('getPeopleType')->willReturn('F');
         $currentPeople->method('getName')->willReturn('Motoboy Teste');
         $currentPeople->method('getAlias')->willReturn('Motoboy Teste');
         $currentPeople->method('getEnabled')->willReturn(true);
@@ -55,8 +56,7 @@ class DeliveryCourierVehicleServiceTest extends TestCase
         $peopleService = $this->createMock(PeopleService::class);
         $peopleService->expects(self::once())->method('getMyPeople')->willReturn($currentPeople);
 
-        $peopleRoleService = $this->createMock(PeopleRoleService::class);
-        $peopleRoleService->expects(self::once())->method('getAllRoles')->with($currentPeople)->willReturn([]);
+        $peopleRoleService = $this->createStub(PeopleRoleService::class);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('createQueryBuilder')->willReturn($queryBuilder);
@@ -99,6 +99,7 @@ class DeliveryCourierVehicleServiceTest extends TestCase
     {
         $currentPeople = $this->createMock(People::class);
         $currentPeople->method('getId')->willReturn(7);
+        $currentPeople->method('getPeopleType')->willReturn('F');
 
         $query = $this->createMock(Query::class);
         $query->expects(self::once())
@@ -119,8 +120,7 @@ class DeliveryCourierVehicleServiceTest extends TestCase
         $peopleService = $this->createMock(PeopleService::class);
         $peopleService->expects(self::once())->method('getMyPeople')->willReturn($currentPeople);
 
-        $peopleRoleService = $this->createMock(PeopleRoleService::class);
-        $peopleRoleService->expects(self::once())->method('getAllRoles')->with($currentPeople)->willReturn([]);
+        $peopleRoleService = $this->createStub(PeopleRoleService::class);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('createQueryBuilder')->willReturn($queryBuilder);
@@ -142,19 +142,16 @@ class DeliveryCourierVehicleServiceTest extends TestCase
         ]);
     }
 
-    public function testSaveFromPayloadRejectsCompanyOnlyUser(): void
+    public function testSaveFromPayloadRejectsLegalEntityAccount(): void
     {
         $currentPeople = $this->createMock(People::class);
         $currentPeople->method('getId')->willReturn(9);
+        $currentPeople->method('getPeopleType')->willReturn('J');
 
         $peopleService = $this->createMock(PeopleService::class);
         $peopleService->expects(self::once())->method('getMyPeople')->willReturn($currentPeople);
 
-        $peopleRoleService = $this->createMock(PeopleRoleService::class);
-        $peopleRoleService->expects(self::once())
-            ->method('getAllRoles')
-            ->with($currentPeople)
-            ->willReturn(['owner']);
+        $peopleRoleService = $this->createStub(PeopleRoleService::class);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('createQueryBuilder');
