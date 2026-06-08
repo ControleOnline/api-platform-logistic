@@ -47,6 +47,11 @@ class DeliveryTaxGroupService
             return;
         }
 
+        $companyJoinAlias = 'deliveryTaxGroupCompanyFilter';
+        if ($this->hasJoinAlias($queryBuilder, $rootAlias, $companyJoinAlias)) {
+            return;
+        }
+
         $currentPeople = $this->peopleService->getMyPeople();
         $companyIds = array_map(
             static fn (People $company): int => (int) $company->getId(),
@@ -60,7 +65,7 @@ class DeliveryTaxGroupService
         }
 
         $queryBuilder->distinct();
-        $queryBuilder->leftJoin(sprintf('%s.companies', $rootAlias), 'deliveryTaxGroupCompanyFilter');
+        $queryBuilder->leftJoin(sprintf('%s.companies', $rootAlias), $companyJoinAlias);
 
         $conditions = [];
         if ($currentPeople instanceof People) {
@@ -72,7 +77,7 @@ class DeliveryTaxGroupService
         }
 
         if ($companyIds !== []) {
-            $conditions[] = 'deliveryTaxGroupCompanyFilter.company IN (:delivery_company_ids)';
+            $conditions[] = sprintf('%s.company IN (:delivery_company_ids)', $companyJoinAlias);
             $queryBuilder->setParameter('delivery_company_ids', $companyIds);
         }
 
@@ -90,7 +95,7 @@ class DeliveryTaxGroupService
                 return;
             }
 
-            $queryBuilder->andWhere('deliveryTaxGroupCompanyFilter.company = :delivery_company_filter');
+            $queryBuilder->andWhere(sprintf('%s.company = :delivery_company_filter', $companyJoinAlias));
             $queryBuilder->setParameter('delivery_company_filter', $company);
         }
 
@@ -269,6 +274,31 @@ class DeliveryTaxGroupService
         $this->securityFilter($queryBuilder, DeliveryTaxGroup::class, 'item', 'deliveryTaxGroup');
 
         return $queryBuilder->getQuery()->getOneOrNullResult();
+    }
+
+    private function hasJoinAlias(QueryBuilder $queryBuilder, string $rootAlias, string $joinAlias): bool
+    {
+        $joins = $queryBuilder->getDQLPart('join');
+        $rootJoins = is_array($joins) ? ($joins[$rootAlias] ?? []) : [];
+        if (!is_iterable($rootJoins)) {
+            return false;
+        }
+
+        foreach ($rootJoins as $key => $join) {
+            if ($key === $joinAlias) {
+                return true;
+            }
+
+            if (is_array($join) && (($join['alias'] ?? null) === $joinAlias)) {
+                return true;
+            }
+
+            if (is_object($join) && method_exists($join, 'getAlias') && $join->getAlias() === $joinAlias) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getSnapshot(DeliveryTaxGroup $group): array
