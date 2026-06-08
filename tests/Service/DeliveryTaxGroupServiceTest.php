@@ -15,6 +15,7 @@ use ControleOnline\Service\DeliveryTaxGroupService;
 use ControleOnline\Service\PeopleRoleService;
 use ControleOnline\Service\PeopleService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
@@ -22,6 +23,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[AllowMockObjectsWithoutExpectations]
 class DeliveryTaxGroupServiceTest extends TestCase
@@ -119,5 +121,84 @@ class DeliveryTaxGroupServiceTest extends TestCase
         self::assertSame([3], $parameters['delivery_company_ids']);
         self::assertSame(3, $parameters['delivery_company_filter']);
         self::assertCount(1, $joins['deliveryTaxGroup']);
+    }
+
+    public function testSaveFromPayloadAllowsStandaloneUserToCreateInitialTable(): void
+    {
+        $currentPeople = $this->createMock(People::class);
+        $currentPeople->method('getId')->willReturn(7);
+        $currentPeople->method('getName')->willReturn('Motoboy Teste');
+        $currentPeople->method('getAlias')->willReturn('Motoboy Teste');
+        $currentPeople->method('getEnabled')->willReturn(true);
+
+        $peopleService = $this->createMock(PeopleService::class);
+        $peopleService->expects(self::once())->method('getMyPeople')->willReturn($currentPeople);
+
+        $peopleRoleService = $this->createMock(PeopleRoleService::class);
+        $peopleRoleService->expects(self::once())->method('getAllRoles')->with($currentPeople)->willReturn([]);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())
+            ->method('persist')
+            ->with(self::callback(function (mixed $entity) use ($currentPeople): bool {
+                return $entity instanceof DeliveryTaxGroup
+                    && $entity->getCourier() === $currentPeople
+                    && $entity->getGroupName() === 'Frete Padrão'
+                    && $entity->getVehicleType() === DeliveryTaxGroup::VEHICLE_TYPE_MOTO;
+            }));
+        $entityManager->expects(self::once())->method('flush');
+
+        $service = new DeliveryTaxGroupService(
+            $entityManager,
+            $this->createStub(TokenStorageInterface::class),
+            $peopleService,
+            $peopleRoleService,
+            new RequestStack()
+        );
+
+        $group = $service->saveFromPayload([
+            'groupName' => 'Frete Padrão',
+            'vehicleType' => 'moto',
+            'taxes' => [],
+        ]);
+
+        self::assertSame($currentPeople, $group->getCourier());
+        self::assertSame('Frete Padrão', $group->getGroupName());
+        self::assertSame(DeliveryTaxGroup::VEHICLE_TYPE_MOTO, $group->getVehicleType());
+    }
+
+    public function testSaveFromPayloadRejectsCompanyOnlyUserWithoutCourierRole(): void
+    {
+        $currentPeople = $this->createMock(People::class);
+        $currentPeople->method('getId')->willReturn(9);
+
+        $peopleService = $this->createMock(PeopleService::class);
+        $peopleService->expects(self::once())->method('getMyPeople')->willReturn($currentPeople);
+
+        $peopleRoleService = $this->createMock(PeopleRoleService::class);
+        $peopleRoleService->expects(self::once())
+            ->method('getAllRoles')
+            ->with($currentPeople)
+            ->willReturn(['owner']);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('persist');
+        $entityManager->expects(self::never())->method('flush');
+        $entityManager->expects(self::never())->method('createQueryBuilder');
+
+        $service = new DeliveryTaxGroupService(
+            $entityManager,
+            $this->createStub(TokenStorageInterface::class),
+            $peopleService,
+            $peopleRoleService,
+            new RequestStack()
+        );
+
+        $this->expectException(AccessDeniedHttpException::class);
+        $service->saveFromPayload([
+            'groupName' => 'Frete Padrão',
+            'vehicleType' => 'moto',
+            'taxes' => [],
+        ]);
     }
 }

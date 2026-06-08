@@ -3,7 +3,8 @@
 /*
  * Contract imported from MODOS_OPERACAO.md
  * - DELIVERY delivery-rate tables are immutable versions.
- * - Courier owns the version and can create a new one from an existing snapshot.
+ * - A standalone authenticated user may create the first version even before any courier/company link exists.
+ * - Courier owns and versions the table snapshot; companies never edit table contents directly.
  * - Company links are tracked separately and toggled by managers without mutating history.
  * - All reads must flow through `securityFilter()` and the same predicate is reused by write helpers.
  */
@@ -130,7 +131,7 @@ class DeliveryTaxGroupService
         $sourceGroup = $this->resolveSourceGroup($payload['cloneFrom'] ?? $payload['sourceGroup'] ?? null);
         if ($sourceGroup instanceof DeliveryTaxGroup) {
             $this->assertCourierOwnership($sourceGroup, $currentPeople);
-        } elseif (!$this->hasCourierRole($currentPeople)) {
+        } elseif (!$this->canCreateInitialGroup($currentPeople)) {
             throw new AccessDeniedHttpException('Somente o motoboy pode criar uma nova tabela.');
         }
 
@@ -596,9 +597,14 @@ class DeliveryTaxGroupService
         throw new AccessDeniedHttpException('Empresa fora do seu contexto de painel.');
     }
 
-    private function hasCourierRole(People $people): bool
+    private function canCreateInitialGroup(People $people): bool
     {
-        return in_array('courier', $this->peopleRoleService->getAllRoles($people), true);
+        $roles = array_values(array_filter(
+            $this->peopleRoleService->getAllRoles($people),
+            static fn (string $role): bool => $role !== 'guest'
+        ));
+
+        return $roles === [] || in_array('courier', $roles, true);
     }
 
     private function resolveVehicleType(mixed $vehicleType): ?string
