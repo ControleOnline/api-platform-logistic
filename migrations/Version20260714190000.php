@@ -326,24 +326,6 @@ final class Version20260714190000 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('SET FOREIGN_KEY_CHECKS=0');
-        $this->addSql('DROP TABLE IF EXISTS `tax`');
-        $this->addSql('DROP TABLE IF EXISTS `quote_detail`');
-        $this->addSql('DROP TABLE IF EXISTS `quote`');
-        $this->addSql('DROP TABLE IF EXISTS `discount_coupon`');
-        $this->addSql('DROP TABLE IF EXISTS `delivery_tax_group_company`');
-        $this->addSql('DROP TABLE IF EXISTS `delivery_tax_group`');
-        $this->addSql('DROP TABLE IF EXISTS `delivery_tax`');
-        $this->addSql('DROP TABLE IF EXISTS `delivery_restriction_material`');
-        $this->addSql('DROP TABLE IF EXISTS `delivery_region_city`');
-        $this->addSql('DROP TABLE IF EXISTS `delivery_region`');
-        $this->addSql('DROP TABLE IF EXISTS `delivery_courier_vehicle`');
-        $this->addSql('DROP TABLE IF EXISTS `delivery_courier_schedule`');
-        $this->addSql('DROP TABLE IF EXISTS `delivery_courier_company_presence_schedule`');
-        $this->addSql('DROP TABLE IF EXISTS `delivery_courier_company_presence`');
-        $this->addSql('DROP TABLE IF EXISTS `car_year_price`');
-        $this->addSql('DROP TABLE IF EXISTS `car_model`');
-        $this->addSql('DROP TABLE IF EXISTS `car_manufacturer`');
-        $this->addSql('SET FOREIGN_KEY_CHECKS=1');
+        return;
     }
 }
