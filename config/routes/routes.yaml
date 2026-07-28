@@ -1,0 +1,3 @@
+controleonline_logistic:
+    resource: ../../src/Controller/
+    type: attribute
