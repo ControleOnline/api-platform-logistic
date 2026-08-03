@@ -3,13 +3,11 @@
 # logistic
 
 
-`composer require controleonline/logistic:dev-master`
+## Instalacao
+[Instalacao na wiki](https://github.com/ControleOnline/api-platform-logistic/wiki/Instalacao)
 
+## Links obrigatorios
 
-Add Service import:
-config\services.yaml
-
-```yaml
-imports:
-    - { resource: "../modules/controleonline/orders/logistic/services/services.yaml" }    
-```
+- [Documentacao para clientes](http://ajuda.controleonline.com/)
+- [Site institucional](http://controleonline.com/)
+- [Wiki tecnica](https://github.com/ControleOnline/api-platform-logistic/wiki)
