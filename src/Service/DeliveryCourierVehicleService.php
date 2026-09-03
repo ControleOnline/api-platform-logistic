@@ -121,6 +121,11 @@ class DeliveryCourierVehicleService
         $vehicle->setColor($this->resolveVehicleText(
             $payload['color'] ?? $payload['vehicleColor'] ?? $vehicle->getColor()
         ));
+        $vehicle->setRenavam($payload['renavam'] ?? $vehicle->getRenavam());
+        $vehicle->setTare($payload['tare'] ?? $vehicle->getTare());
+        $vehicle->setLoadCapacity($payload['loadCapacity'] ?? $payload['load_capacity'] ?? $vehicle->getLoadCapacity());
+        $vehicle->setAxleType($payload['axleType'] ?? $payload['axle_type'] ?? $vehicle->getAxleType());
+        $vehicle->setBodyType($payload['bodyType'] ?? $payload['body_type'] ?? $vehicle->getBodyType());
 
         if (!$this->isRichVehicleComplete($vehicle)) {
             throw new BadRequestHttpException('Informe marca, modelo, ano e placa do veículo.');
@@ -150,6 +155,12 @@ class DeliveryCourierVehicleService
             'plate' => $vehicle->getPlate(),
             'year' => $vehicle->getYear(),
             'color' => $vehicle->getColor(),
+            'renavam' => $vehicle->getRenavam(),
+            'tare' => $vehicle->getTare(),
+            'loadCapacity' => $vehicle->getLoadCapacity(),
+            'axleType' => $vehicle->getAxleType(),
+            'bodyType' => $vehicle->getBodyType(),
+            'mainDriver' => $this->toPeopleSnapshot($vehicle->getMainDriver()),
             'creationDate' => $this->formatDateTime($vehicle->getCreationDate()),
             'alterDate' => $this->formatDateTime($vehicle->getAlterDate()),
         ];
