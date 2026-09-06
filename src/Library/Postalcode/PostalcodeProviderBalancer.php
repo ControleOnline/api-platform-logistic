@@ -3,6 +3,9 @@
 namespace ControleOnline\Library\Postalcode;
 
 use ControleOnline\Library\Postalcode\Entity\Address;
+use ControleOnline\Library\Postalcode\BrasilApi\BrasilApiServiceProvider;
+use ControleOnline\Library\Postalcode\Exception\InvalidParameterException;
+use ControleOnline\Library\Postalcode\Exception\PostalcodeNotFoundException;
 use ControleOnline\Library\Postalcode\Exception\ProviderRequestException;
 use ControleOnline\Library\Postalcode\GoogleMaps\GoogleMapsServiceProvider;
 use ControleOnline\Library\Postalcode\Postmon\PostmonServiceProvider;
@@ -16,6 +19,7 @@ class PostalcodeProviderBalancer
    */
   private $providers = [
     'viacep'     => ViacepServiceProvider::class,
+    'brasilapi'  => BrasilApiServiceProvider::class,
     'postmon'    => PostmonServiceProvider::class,
     'googlemaps' => GoogleMapsServiceProvider::class,
   ];
@@ -24,6 +28,11 @@ class PostalcodeProviderBalancer
 
   public function search(string $postalCode): Address
   {
+    $postalCode = preg_replace('/\D+/', '', $postalCode) ?? '';
+    if (strlen($postalCode) !== 8) {
+      throw new InvalidParameterException('CEP must have exactly 8 digits');
+    }
+
     try {
 
       if ($this->currentProvider === null) {
@@ -31,13 +40,20 @@ class PostalcodeProviderBalancer
         $this->currentProvider = new $this->currentProvider;
       }
 
-      return $this->currentProvider->getAddress($postalCode);
+      $address = $this->currentProvider->getAddress($postalCode);
+      if (!$address instanceof Address) {
+        throw new ProviderRequestException('Provider returned an invalid address');
+      }
+
+      return $address;
     } catch (\Exception $e) {
       if ($e instanceof ProviderRequestException) {
         $this->setNextProvider();
 
         return $this->search($postalCode);
       }
+
+      throw $e;
     }
   }
 
