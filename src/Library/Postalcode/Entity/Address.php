@@ -128,4 +128,19 @@ class Address
   {
     return $this->complement;
   }
+
+  public function toArray(): array
+  {
+    return [
+      'postalCode' => $this->getPostalCode(),
+      'street' => $this->getStreet(),
+      'number' => $this->getNumber(),
+      'complement' => $this->getComplement(),
+      'district' => $this->getDistrict(),
+      'city' => $this->getCity(),
+      'state' => $this->getState(),
+      'uf' => $this->getUF(),
+      'country' => $this->getCountry(),
+    ];
+  }
 }
