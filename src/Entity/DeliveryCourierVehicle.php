@@ -1,4 +1,5 @@
 <?php
+// fluxo: motoboy-cadastro | etapa: courier-vehicle | wiki: https://github.com/ControleOnline/api-community/wiki/Venda-Producao
 
 /*
  * Contract imported from MODOS_OPERACAO.md
@@ -96,31 +97,6 @@ class DeliveryCourierVehicle
     #[ORM\Column(name: 'color', type: 'string', length: 60, nullable: true)]
     #[Groups(['delivery_courier_vehicle:read', 'delivery_courier_vehicle:write'])]
     private ?string $color = null;
-
-    #[ORM\Column(name: 'renavam', type: 'string', length: 20, nullable: true)]
-    #[Groups(['delivery_courier_vehicle:read', 'delivery_courier_vehicle:write'])]
-    private ?string $renavam = null;
-
-    #[ORM\Column(name: 'tare', type: 'decimal', precision: 12, scale: 3, nullable: true)]
-    #[Groups(['delivery_courier_vehicle:read', 'delivery_courier_vehicle:write'])]
-    private ?string $tare = null;
-
-    #[ORM\Column(name: 'load_capacity', type: 'decimal', precision: 12, scale: 3, nullable: true)]
-    #[Groups(['delivery_courier_vehicle:read', 'delivery_courier_vehicle:write'])]
-    private ?string $loadCapacity = null;
-
-    #[ORM\Column(name: 'axle_type', type: 'string', length: 30, nullable: true)]
-    #[Groups(['delivery_courier_vehicle:read', 'delivery_courier_vehicle:write'])]
-    private ?string $axleType = null;
-
-    #[ORM\Column(name: 'body_type', type: 'string', length: 30, nullable: true)]
-    #[Groups(['delivery_courier_vehicle:read', 'delivery_courier_vehicle:write'])]
-    private ?string $bodyType = null;
-
-    #[ORM\JoinColumn(name: 'main_driver_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
-    #[ORM\ManyToOne(targetEntity: People::class)]
-    #[Groups(['delivery_courier_vehicle:read', 'delivery_courier_vehicle:write'])]
-    private ?People $mainDriver = null;
 
     #[ORM\Column(name: 'creation_date', type: 'datetime', nullable: false, columnDefinition: 'DATETIME DEFAULT CURRENT_TIMESTAMP')]
     #[Groups(['delivery_courier_vehicle:read'])]
@@ -232,19 +208,6 @@ class DeliveryCourierVehicle
 
         return $this;
     }
-
-    public function getRenavam(): ?string { return $this->renavam; }
-    public function setRenavam(?string $value): self { $value = trim((string) $value); $this->renavam = $value !== '' ? $value : null; return $this; }
-    public function getTare(): ?string { return $this->tare; }
-    public function setTare(mixed $value): self { $value = trim((string) $value); $this->tare = $value !== '' ? $value : null; return $this; }
-    public function getLoadCapacity(): ?string { return $this->loadCapacity; }
-    public function setLoadCapacity(mixed $value): self { $value = trim((string) $value); $this->loadCapacity = $value !== '' ? $value : null; return $this; }
-    public function getAxleType(): ?string { return $this->axleType; }
-    public function setAxleType(?string $value): self { $value = trim((string) $value); $this->axleType = $value !== '' ? $value : null; return $this; }
-    public function getBodyType(): ?string { return $this->bodyType; }
-    public function setBodyType(?string $value): self { $value = trim((string) $value); $this->bodyType = $value !== '' ? $value : null; return $this; }
-    public function getMainDriver(): ?People { return $this->mainDriver; }
-    public function setMainDriver(?People $value): self { $this->mainDriver = $value; return $this; }
 
     public function getCreationDate(): ?\DateTimeInterface
     {
