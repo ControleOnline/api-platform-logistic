@@ -1,0 +1,13 @@
+{
+  "version": "1.0.2",
+  "rc": 1,
+  "branch": "rc/1.0.2-rc.1",
+  "baseMaster": "d7b49cc5f93f59550fb6b73f39b0821c5f4bea6e",
+  "tasks": [
+    167
+  ],
+  "repositories": {
+    "ControleOnline/api-platform-logistic": "d75015c2de47950b976eeaddfd6f591f7ea761bf"
+  },
+  "frozen": true
+}
