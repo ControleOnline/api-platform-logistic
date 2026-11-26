@@ -1,13 +1,20 @@
 {
-  "version": "1.0.2",
+  "version": "1.0.3",
   "rc": 1,
-  "branch": "rc/1.0.2-rc.1",
-  "baseMaster": "d7b49cc5f93f59550fb6b73f39b0821c5f4bea6e",
+  "branch": "rc/1.0.3-rc.1",
+  "baseMaster": "4d6ff2780487d1b453f60098012868a391492c65",
+  "baseTag": "v1.0.2",
   "tasks": [
-    167
+    1761
   ],
+  "taskRepository": "ControleOnline/app-community",
+  "frozen": true,
   "repositories": {
-    "ControleOnline/api-platform-logistic": "4ccc7c94f36b85678c7d6f3afeecb24d65a8e60a"
+    "ControleOnline/api-platform-logistic": "ea6e9c50b959634cc7d255039ef6462a3df02b19"
   },
-  "frozen": true
+  "sources": {
+    "versão de produção v1.0.2": "4d6ff2780487d1b453f60098012868a391492c65",
+    "staging": "5463a703b0ed0db1ed1a731f011bfdd2f6a3592c",
+    "dev": "23a0e1cdec4a97681fd889b55f1dec7c7fd49ff6"
+  }
 }
